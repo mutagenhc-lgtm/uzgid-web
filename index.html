@@ -129,7 +129,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v10</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v11</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -304,7 +304,7 @@ async function onSend(){
   document.getElementById('send').disabled=true;
   showTyping();
 
-  const system=`You are UzGid, an expert local tour guide for Uzbekistan (Tashkent, Samarkand, Bukhara, Khiva and beyond). Reply ONLY in ${LANGNAME[lang]}. Be warm, lively and concise like a real local guide — 2 to 4 short paragraphs. Give concrete places, dish names, realistic price ranges in UZS and USD, and practical tips. If unsure about a specific local detail, say so honestly rather than inventing it. Decline questions unrelated to travel in Uzbekistan. On the VERY LAST line output: PHOTO: <the single most famous place name, short, as Wikipedia would title it, e.g. "Registan" or "Bibi-Khanym Mosque"> or PHOTO: none`;
+  const system=`You are UzGid, an expert local tour guide for Uzbekistan (Tashkent, Samarkand, Bukhara, Khiva and beyond). Reply ONLY in ${LANGNAME[lang]}. Be warm, lively and concise like a real local guide — 2 to 4 short paragraphs. Give concrete places, dish names, realistic price ranges in UZS and USD, and practical tips. If unsure about a specific local detail, say so honestly rather than inventing it. Decline questions unrelated to travel in Uzbekistan. VERY IMPORTANT: on the very last line, output the main place name ALWAYS IN ENGLISH (Latin script), exactly as English Wikipedia titles it, even though the rest of your reply is in ${LANGNAME[lang]}. Format: PHOTO: Registan  (or)  PHOTO: Bibi-Khanym Mosque  (or)  PHOTO: none`;
 
   try{
     const resp=await fetch("/api/chat",{
