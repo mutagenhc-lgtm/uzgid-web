@@ -129,7 +129,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v9</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v10</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -245,17 +245,12 @@ function addMe(text){
   d.className='msg me';d.textContent=text;
   f.appendChild(d);f.scrollTop=f.scrollHeight;
 }
-function addPhoto(url,cap){
+function addPhotoBlob(objUrl,cap){
   const f=document.getElementById('feed');
   const d=document.createElement('div');
   d.className='feed-photo';
-  const proxied='/api/img?url='+encodeURIComponent(url);
   const img=document.createElement('img');
-  img.alt=cap;
-  img.onerror=function(){
-    d.innerHTML='<div class="cap">📷 картинка не загрузилась</div>';
-  };
-  img.src=proxied;
+  img.alt=cap;img.src=objUrl;
   d.appendChild(img);
   const c=document.createElement('div');
   c.className='cap';c.textContent='📍 '+cap;
@@ -335,8 +330,23 @@ async function onSend(){
 
     if(photoQ){
       const res=await fetchPhoto(photoQ);
-      if(res.url){status.remove();addPhoto(res.url,photoQ);}
-      else{status.textContent='📷 фото не найдено · '+res.reason;}
+      if(res.url){
+        status.textContent='📷 загружаю картинку…';
+        try{
+          const ir=await fetch('/api/img?url='+encodeURIComponent(res.url));
+          if(ir.ok){
+            const blob=await ir.blob();
+            status.remove();
+            addPhotoBlob(URL.createObjectURL(blob),photoQ);
+          }else{
+            status.textContent='📷 сервер картинки ответил: '+ir.status;
+          }
+        }catch(e){
+          status.textContent='📷 ошибка картинки: '+(e&&e.message||e);
+        }
+      }else{
+        status.textContent='📷 фото не найдено · '+res.reason;
+      }
     }else{
       status.textContent='📷 модель не указала место (нет PHOTO)';
     }
