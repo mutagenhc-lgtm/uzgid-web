@@ -3,11 +3,15 @@
 
 import { FACTS } from "./_facts.js";
 
-let kv = null;
-try { kv = (await import("@vercel/kv")).kv; } catch (e) { kv = null; }
+let redis = null;
+try {
+  const mod = await import("@upstash/redis");
+  redis = mod.Redis.fromEnv();
+} catch (e) {
+  redis = null;
+}
 
 async function buildKnowledge() {
-  // 1) Проверенные факты от вас (из _facts.js)
   let parts = [];
   if (FACTS && FACTS.length) {
     parts.push(
@@ -15,20 +19,22 @@ async function buildKnowledge() {
       FACTS.map((f) => "- " + f).join("\n")
     );
   }
-  // 2) Хорошие ответы, отмеченные туристами 👍 (примеры стиля и точности)
-  if (kv) {
+  if (redis) {
     try {
-      const good = await kv.lrange("good_answers", 0, 4); // последние 5
+      const good = await redis.lrange("good_answers", 0, 4);
       if (good && good.length) {
         const examples = good
-          .map((g, i) => "Example " + (i + 1) + " — Q: " + g.question + "\nA: " + g.answer)
+          .map((g, i) => {
+            const obj = typeof g === "string" ? JSON.parse(g) : g;
+            return "Example " + (i + 1) + " — Q: " + obj.question + "\nA: " + obj.answer;
+          })
           .join("\n\n");
         parts.push(
           "PAST ANSWERS RATED EXCELLENT BY TOURISTS — match this style and accuracy:\n\n" +
           examples
         );
       }
-    } catch (e) { /* KV не настроен — игнорируем */ }
+    } catch (e) { /* нет БД — пропускаем */ }
   }
   return parts.length ? "\n\n" + parts.join("\n\n") : "";
 }
