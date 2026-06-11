@@ -129,7 +129,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v5</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v6</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -268,37 +268,25 @@ function addStatus(text){
   f.appendChild(d);f.scrollTop=f.scrollHeight;
 }
 
-async function wikiSearchTitle(q){
-  try{
-    const su='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*'+
-      '&list=search&srlimit=1&srsearch='+encodeURIComponent(q);
-    const r=await fetch(su);const d=await r.json();
-    return d.query?.search?.[0]?.title||null;
-  }catch(e){throw e;}
-}
-
 async function fetchPhoto(q){
-  // строим варианты запроса: полный, без хвостовых слов, первое слово
-  const words=q.split(/\s+/);
-  const variants=[q];
-  if(words.length>1)variants.push(words.slice(0,2).join(' '));
-  variants.push(words[0]);
-  let title=null;
+  // как в боте: один запрос generator=search + pageimages, origin=* для CORS.
+  // generator=search «нечёткий» — находит нужную статью даже по длинному названию.
   try{
-    for(const v of variants){
-      title=await wikiSearchTitle(v);
-      if(title)break;
+    const u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*'+
+      '&generator=search&gsrsearch='+encodeURIComponent(q)+'&gsrlimit=1'+
+      '&prop=pageimages&piprop=thumbnail&pithumbsize=1000';
+    const r=await fetch(u);
+    if(!r.ok)return {url:null,reason:'wiki http '+r.status};
+    const data=await r.json();
+    const pages=data.query?.pages||{};
+    for(const k in pages){
+      const s=pages[k].thumbnail?.source;
+      if(s)return {url:s,reason:null};
     }
-  }catch(e){return {url:null,reason:'wiki search blocked: '+e.message};}
-  if(!title)return {url:null,reason:'no wiki article for "'+q+'"'};
-  try{
-    const t=encodeURIComponent(title.replace(/\s+/g,'_'));
-    const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+t);
-    if(r.ok){const d=await r.json();const s=d.thumbnail?.source||d.originalimage?.source;
-      if(s)return {url:s,reason:null,title:title};
-      return {url:null,reason:'article "'+title+'" has no image'};}
-    return {url:null,reason:'summary http '+r.status};
-  }catch(e){return {url:null,reason:'image fetch blocked: '+e.message};}
+    return {url:null,reason:'no image for "'+q+'"'};
+  }catch(e){
+    return {url:null,reason:'fetch blocked: '+(e&&e.message||e)};
+  }
 }
 
 const input=document.getElementById('input');
