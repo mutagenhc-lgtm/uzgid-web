@@ -129,7 +129,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v19</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v20</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -271,11 +271,9 @@ function hideTyping(){const t=document.getElementById('typing');if(t)t.remove();
 
 function addLocation(name,lat,lon){
   const f=document.getElementById('feed');
-  const card=document.createElement('a');
-  // ссылка на карты — на телефонах откроется в установленном приложении
-  card.href='https://www.openstreetmap.org/?mlat='+lat+'&mlon='+lon+'#map=16/'+lat+'/'+lon;
-  card.target='_blank';card.rel='noopener';
-  card.style.cssText='align-self:flex-start;width:86%;max-width:380px;display:flex;align-items:center;gap:12px;background:#fbf6ea;border:1px solid #e9dcc0;border-radius:14px;padding:11px 13px;text-decoration:none;color:#22201b';
+  const card=document.createElement('button');
+  card.type='button';
+  card.style.cssText='align-self:flex-start;width:86%;max-width:380px;display:flex;align-items:center;gap:12px;background:#fbf6ea;border:1px solid #e9dcc0;border-radius:14px;padding:11px 13px;text-align:left;cursor:pointer;font-family:inherit;color:#22201b';
   const pin=document.createElement('div');
   pin.style.cssText='width:42px;height:42px;border-radius:50%;background:#15356b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0';
   pin.textContent='📍';
@@ -285,7 +283,54 @@ function addLocation(name,lat,lon){
   info.innerHTML='<div style="font-weight:600;font-size:14.5px">'+name+'</div>'+
     '<div style="font-size:12px;color:#1f8f93">Открыть на карте →</div>';
   card.appendChild(info);
+  card.onclick=()=>openMapChooser(name,lat,lon);
   f.appendChild(card);
+}
+
+function openMapChooser(name,lat,lon){
+  // определяем платформу для подсказки «по умолчанию»
+  const ua=navigator.userAgent||'';
+  const isIOS=/iPhone|iPad|iPod/.test(ua);
+  const isAndroid=/Android/.test(ua);
+  const q=encodeURIComponent(name);
+
+  // список вариантов: метка, ссылка
+  const opts=[];
+  if(isIOS){
+    opts.push(['🗺️ Apple Maps','maps://?ll='+lat+','+lon+'&q='+q]);
+  }
+  opts.push(['🟢 Google Maps','https://www.google.com/maps/search/?api=1&query='+lat+','+lon]);
+  opts.push(['🟡 Яндекс.Карты','https://yandex.com/maps/?pt='+lon+','+lat+'&z=16&l=map']);
+  opts.push(['🔵 2GIS','https://2gis.uz/geo/'+lon+','+lat]);
+  opts.push(['🌍 OpenStreetMap','https://www.openstreetmap.org/?mlat='+lat+'&mlon='+lon+'#map=16/'+lat+'/'+lon]);
+
+  // полупрозрачный фон
+  const back=document.createElement('div');
+  back.style.cssText='position:fixed;inset:0;background:rgba(14,37,72,.55);z-index:100;display:flex;align-items:flex-end;justify-content:center';
+  back.onclick=(e)=>{if(e.target===back)back.remove();};
+
+  // сам выезжающий лист
+  const sheet=document.createElement('div');
+  sheet.style.cssText='width:100%;max-width:520px;background:#fbf6ea;border-radius:18px 18px 0 0;padding:14px 14px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,.25)';
+  const title=document.createElement('div');
+  title.style.cssText='font-size:13px;color:#5b554a;text-align:center;padding:6px 0 12px';
+  title.textContent='Открыть «'+name+'» в:';
+  sheet.appendChild(title);
+  opts.forEach(([label,url])=>{
+    const b=document.createElement('a');
+    b.href=url;b.target='_blank';b.rel='noopener';
+    b.textContent=label;
+    b.style.cssText='display:block;text-decoration:none;color:#22201b;background:#fff;border:1px solid #e9dcc0;border-radius:12px;padding:14px 16px;font-size:15.5px;margin-bottom:8px;font-weight:500';
+    b.onclick=()=>setTimeout(()=>back.remove(),100);
+    sheet.appendChild(b);
+  });
+  const cancel=document.createElement('button');
+  cancel.type='button';cancel.textContent='Отмена';
+  cancel.style.cssText='width:100%;background:transparent;border:none;color:#5b554a;font-size:15px;padding:10px;cursor:pointer;font-family:inherit;margin-top:4px';
+  cancel.onclick=()=>back.remove();
+  sheet.appendChild(cancel);
+  back.appendChild(sheet);
+  document.body.appendChild(back);
 }
 
 const input=document.getElementById('input');
