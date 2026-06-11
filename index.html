@@ -129,7 +129,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v16</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v17</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -312,16 +312,17 @@ async function onSend(){
         const d=await r.json();
         if(d.dataUrl){
           const f=document.getElementById('feed');
-          const box=document.createElement('div');
-          box.className='feed-photo';
           const img=document.createElement('img');
           img.alt=photoQ;
+          img.style.cssText='display:block;width:86%;max-width:380px;height:auto;align-self:flex-start;border-radius:14px;border:1px solid #e9dcc0;background:#fbf6ea';
           img.onload=function(){status.remove();};
-          img.onerror=function(){status.textContent='📷 картинка не открывается';box.remove();};
-          box.appendChild(img);
-          const c=document.createElement('div');c.className='cap';c.textContent='📍 '+photoQ;
-          box.appendChild(c);
-          f.appendChild(box);f.scrollTop=f.scrollHeight;
+          img.onerror=function(){status.textContent='📷 картинка не открывается';img.remove();};
+          f.appendChild(img);
+          const cap=document.createElement('div');
+          cap.style.cssText='align-self:flex-start;font-size:12.5px;color:#5b554a;padding:0 4px;margin-top:-6px';
+          cap.textContent='📍 '+photoQ;
+          f.appendChild(cap);
+          f.scrollTop=f.scrollHeight;
           img.src=d.dataUrl;
         }else{
           status.textContent='📷 '+(d.reason||'нет фото');
