@@ -129,7 +129,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v18</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v19</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -269,6 +269,25 @@ function showTyping(){
 }
 function hideTyping(){const t=document.getElementById('typing');if(t)t.remove();}
 
+function addLocation(name,lat,lon){
+  const f=document.getElementById('feed');
+  const card=document.createElement('a');
+  // ссылка на карты — на телефонах откроется в установленном приложении
+  card.href='https://www.openstreetmap.org/?mlat='+lat+'&mlon='+lon+'#map=16/'+lat+'/'+lon;
+  card.target='_blank';card.rel='noopener';
+  card.style.cssText='align-self:flex-start;width:86%;max-width:380px;display:flex;align-items:center;gap:12px;background:#fbf6ea;border:1px solid #e9dcc0;border-radius:14px;padding:11px 13px;text-decoration:none;color:#22201b';
+  const pin=document.createElement('div');
+  pin.style.cssText='width:42px;height:42px;border-radius:50%;background:#15356b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0';
+  pin.textContent='📍';
+  card.appendChild(pin);
+  const info=document.createElement('div');
+  info.style.cssText='flex:1;min-width:0';
+  info.innerHTML='<div style="font-weight:600;font-size:14.5px">'+name+'</div>'+
+    '<div style="font-size:12px;color:#1f8f93">Открыть на карте →</div>';
+  card.appendChild(info);
+  f.appendChild(card);
+}
+
 const input=document.getElementById('input');
 input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,110)+'px';});
 input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();onSend();}});
@@ -313,7 +332,9 @@ async function onSend(){
         const r=await fetch('/api/photo?q='+encodeURIComponent(photoQ),{signal:ctrl.signal});
         clearTimeout(timer);
         const d=await r.json();
+        let hadAnything=false;
         if(d.dataUrl){
+          hadAnything=true;
           const f=document.getElementById('feed');
           const img=document.createElement('img');
           img.alt=photoQ;
@@ -325,11 +346,17 @@ async function onSend(){
           cap.style.cssText='align-self:flex-start;font-size:12.5px;color:#5b554a;padding:0 4px;margin-top:-6px';
           cap.textContent='📍 '+photoQ;
           f.appendChild(cap);
-          f.scrollTop=f.scrollHeight;
           img.src=d.dataUrl;
-        }else{
+        }
+        if(d.lat&&d.lon){
+          hadAnything=true;
+          addLocation(photoQ,d.lat,d.lon);
+          if(!d.dataUrl)status.remove();
+        }
+        if(!hadAnything){
           status.textContent='📷 '+(d.reason||'нет фото');
         }
+        document.getElementById('feed').scrollTop=document.getElementById('feed').scrollHeight;
       }catch(e){
         status.textContent='📷 ошибка: '+(e&&e.name||'')+' '+(e&&e.message||e);
       }
