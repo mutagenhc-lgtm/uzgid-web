@@ -129,7 +129,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v2</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v3</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -250,31 +250,34 @@ function showTyping(){
 }
 function hideTyping(){const t=document.getElementById('typing');if(t)t.remove();}
 
-function addNote(text){
+function addStatus(text){
   const f=document.getElementById('feed');
   const d=document.createElement('div');
-  d.style.cssText='align-self:center;font-size:11.5px;color:#a99;opacity:.7;padding:2px';
-  d.textContent=text;
+  d.style.cssText='align-self:center;max-width:90%;text-align:center;font-size:13px;color:#8a5a2b;background:#fbe8d4;border:1px solid #e8c98f;border-radius:10px;padding:8px 12px';
+  d.textContent='ℹ️ '+text;
   f.appendChild(d);f.scrollTop=f.scrollHeight;
 }
 
 async function fetchPhoto(q){
-  // попытка 1: поиск страницы + миниатюра
+  // двухэтапно и надёжно: найти точный заголовок страницы, затем взять фото
+  let title=null;
+  // этап 1: поиск заголовка статьи
   try{
-    const u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*'+
-      '&generator=search&gsrsearch='+encodeURIComponent(q)+'&gsrlimit=1'+
-      '&prop=pageimages&piprop=thumbnail&pithumbsize=1000';
-    const r=await fetch(u);const data=await r.json();
-    const pages=data.query?.pages||{};
-    for(const k in pages){const s=pages[k].thumbnail?.source;if(s)return s;}
-  }catch(e){console.warn('photo step1 failed',e);}
-  // попытка 2: REST-сводка по близкому заголовку
+    const su='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*'+
+      '&list=search&srlimit=1&srsearch='+encodeURIComponent(q);
+    const r=await fetch(su);const d=await r.json();
+    title=d.query?.search?.[0]?.title||null;
+  }catch(e){return {url:null,reason:'wiki search blocked: '+e.message};}
+  if(!title)return {url:null,reason:'no wiki article for "'+q+'"'};
+  // этап 2: фото со страницы через REST-сводку
   try{
-    const t=encodeURIComponent(q.replace(/\s+/g,'_'));
+    const t=encodeURIComponent(title.replace(/\s+/g,'_'));
     const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+t);
-    if(r.ok){const d=await r.json();const s=d.thumbnail?.source||d.originalimage?.source;if(s)return s;}
-  }catch(e){console.warn('photo step2 failed',e);}
-  return null;
+    if(r.ok){const d=await r.json();const s=d.thumbnail?.source||d.originalimage?.source;
+      if(s)return {url:s,reason:null};
+      return {url:null,reason:'article "'+title+'" has no image'};}
+    return {url:null,reason:'summary http '+r.status};
+  }catch(e){return {url:null,reason:'image fetch blocked: '+e.message};}
 }
 
 const input=document.getElementById('input');
@@ -310,11 +313,11 @@ async function onSend(){
     hideTyping();
     addBot(answer);
     if(photoQ){
-      const url=await fetchPhoto(photoQ);
-      if(url){addPhoto(url,photoQ);}
-      else{addNote('🔎 no photo found for "'+photoQ+'"');}
+      const res=await fetchPhoto(photoQ);
+      if(res.url){addPhoto(res.url,photoQ);}
+      else{addStatus('Фото не найдено · '+res.reason);}
     }else{
-      addNote('🔎 model returned no place tag');
+      addStatus('Модель не указала место (нет метки PHOTO)');
     }
   }catch(e){
     hideTyping();
