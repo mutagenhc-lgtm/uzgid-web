@@ -6,17 +6,37 @@
 <title>UzGid — your guide to Uzbekistan</title>
 <style>
   :root{
-    --cobalt:#15356b;--cobalt-deep:#0e2548;--turq:#1f8f93;--turq-light:#3bb3a8;
-    --sand:#f4ecd8;--sand-deep:#e9dcc0;--clay:#c0633a;--gold:#cfa24c;
-    --ink:#22201b;--ink-soft:#5b554a;--paper:#fbf6ea;
+    --cobalt:#15356b;
+    --cobalt-deep:#0e2548;
+    --turq:#1f8f93;
+    --turq-light:#3bb3a8;
+    --sand:#f4ecd8;
+    --sand-deep:#e9dcc0;
+    --clay:#c0633a;
+    --gold:#cfa24c;
+    --ink:#22201b;
+    --ink-soft:#5b554a;
+    --paper:#fbf6ea;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--sand);color:var(--ink);overflow:hidden}
-  #app{display:flex;flex-direction:column;height:100dvh;max-width:520px;margin:0 auto;background:var(--paper)}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:var(--sand);
+    color:var(--ink);
+    overflow:hidden;
+  }
+  #app{display:flex;flex-direction:column;height:100dvh;max-width:520px;margin:0 auto;position:relative;background:var(--paper)}
+
+  /* ---------- shared girih motif ---------- */
   .girih{position:absolute;opacity:.07;pointer-events:none}
 
-  #lang-screen{flex:1;display:flex;flex-direction:column;background:var(--cobalt);color:var(--sand);position:relative;overflow:hidden}
+  /* ---------- language screen ---------- */
+  #lang-screen{
+    flex:1;display:flex;flex-direction:column;
+    background:var(--cobalt);color:var(--sand);
+    position:relative;overflow:hidden;
+  }
   #lang-screen .top{padding:54px 28px 10px;position:relative;z-index:2}
   .brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}
   .brand-star{width:38px;height:38px;flex-shrink:0}
@@ -26,26 +46,46 @@
   .lede em{font-style:normal;color:var(--turq-light)}
   .sub{margin-top:14px;font-size:15px;line-height:1.6;color:#cdd8ea;max-width:30ch}
   .pick{margin-top:26px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
-  .langs{position:relative;z-index:2;padding:14px 22px 30px;display:grid;grid-template-columns:1fr 1fr;gap:11px;overflow-y:auto}
-  .lang-btn{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:14px 15px;color:var(--sand);font-size:15.5px;font-weight:500;cursor:pointer;transition:.18s}
+  .langs{
+    position:relative;z-index:2;
+    padding:14px 22px 30px;
+    display:grid;grid-template-columns:1fr 1fr;gap:11px;
+    overflow-y:auto;
+  }
+  .lang-btn{
+    display:flex;align-items:center;gap:11px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:14px;padding:14px 15px;
+    color:var(--sand);font-size:15.5px;font-weight:500;
+    cursor:pointer;transition:.18s;
+  }
   .lang-btn:hover,.lang-btn:active{background:var(--turq);border-color:var(--turq-light)}
   .lang-btn .flag{font-size:22px}
 
+  /* ---------- chat screen ---------- */
   #chat-screen{flex:1;display:none;flex-direction:column;height:100dvh}
-  header.bar{background:var(--cobalt);color:var(--sand);padding:16px 18px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;flex-shrink:0;box-shadow:0 2px 12px rgba(14,37,72,.25);z-index:3}
+  header.bar{
+    background:var(--cobalt);color:var(--sand);
+    padding:16px 18px;display:flex;align-items:center;gap:12px;
+    position:relative;overflow:hidden;flex-shrink:0;
+    box-shadow:0 2px 12px rgba(14,37,72,.25);z-index:3;
+  }
   header.bar .star{width:30px;height:30px;flex-shrink:0;position:relative;z-index:2}
   header.bar .h-name{font-weight:700;font-size:18px;position:relative;z-index:2}
   header.bar .h-name span{color:var(--gold)}
   header.bar .h-loc{font-size:12px;color:#bccbe2;position:relative;z-index:2}
   header.bar .switch{margin-left:auto;position:relative;z-index:2;background:rgba(255,255,255,.1);border:none;color:var(--sand);font-size:13px;padding:7px 12px;border-radius:9px;cursor:pointer}
+  header.bar .switch:active{background:rgba(255,255,255,.2)}
 
   #feed{flex:1;overflow-y:auto;padding:20px 16px 8px;display:flex;flex-direction:column;gap:14px}
   .msg{max-width:86%;padding:13px 15px;border-radius:16px;font-size:15.5px;line-height:1.55;word-wrap:break-word;white-space:pre-wrap}
-  .msg.bot{background:var(--paper);border:1px solid var(--sand-deep);border-bottom-left-radius:5px;align-self:flex-start}
+  .msg.bot{background:var(--paper);border:1px solid var(--sand-deep);border-bottom-left-radius:5px;align-self:flex-start;box-shadow:0 1px 4px rgba(34,32,27,.05)}
   .msg.me{background:var(--cobalt);color:var(--sand);border-bottom-right-radius:5px;align-self:flex-end}
   .msg.bot strong{color:var(--clay)}
   .chips{display:flex;flex-wrap:wrap;gap:8px;padding:4px 16px 14px}
   .chip{background:var(--sand-deep);border:1px solid #d8c9a6;color:var(--cobalt-deep);font-size:13.5px;padding:9px 13px;border-radius:20px;cursor:pointer;font-weight:500}
+  .chip:active{background:var(--gold);color:#fff}
   .typing{align-self:flex-start;display:flex;gap:5px;padding:14px 16px}
   .typing span{width:8px;height:8px;border-radius:50%;background:var(--turq);animation:bounce 1.1s infinite}
   .typing span:nth-child(2){animation-delay:.18s}
@@ -55,8 +95,10 @@
   footer.compose{flex-shrink:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--sand-deep);display:flex;gap:10px;align-items:flex-end}
   #input{flex:1;border:1px solid #d8c9a6;background:#fff;border-radius:18px;padding:12px 15px;font-size:15.5px;font-family:inherit;resize:none;max-height:110px;line-height:1.4;outline:none}
   #input:focus{border-color:var(--turq)}
-  #send{flex-shrink:0;width:46px;height:46px;border-radius:50%;border:none;background:var(--clay);color:#fff;font-size:20px;cursor:pointer}
+  #send{flex-shrink:0;width:46px;height:46px;border-radius:50%;border:none;background:var(--clay);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  #send:active{background:#a8542f}
   #send:disabled{opacity:.45}
+
   .feed-photo{max-width:86%;align-self:flex-start;border-radius:14px;overflow:hidden;border:1px solid var(--sand-deep)}
   .feed-photo img{width:100%;display:block}
   .feed-photo .cap{font-size:12.5px;color:var(--ink-soft);padding:7px 11px;background:var(--paper)}
@@ -65,25 +107,29 @@
 <body>
 <div id="app">
 
+  <!-- ====== LANGUAGE SCREEN ====== -->
   <section id="lang-screen">
     <svg class="girih" style="width:340px;top:-60px;right:-90px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
+    <svg class="girih" style="width:200px;bottom:120px;left:-60px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
     <div class="top">
       <div class="brand">
         <svg class="brand-star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
         <div class="brand-name">Uz<span>Gid</span></div>
       </div>
       <div class="lede">Your local guide to <em>Uzbekistan</em></div>
-      <div class="sub">Ask anything — what to see, where to eat, how to get there.</div>
+      <div class="sub">Ask anything — what to see, where to eat, how to get there. Photos and maps included.</div>
       <div class="pick">Choose your language</div>
     </div>
     <div class="langs" id="lang-grid"></div>
   </section>
 
+  <!-- ====== CHAT SCREEN ====== -->
   <section id="chat-screen">
     <header class="bar">
+      <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v12</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -99,13 +145,28 @@
 </div>
 
 <script>
-const LANGS=[
-  {code:'en',flag:'🇬🇧',name:'English'},{code:'ru',flag:'🇷🇺',name:'Русский'},
-  {code:'uz',flag:'🇺🇿',name:"O'zbekcha"},{code:'es',flag:'🇪🇸',name:'Español'},
-  {code:'ko',flag:'🇰🇷',name:'한국어'},{code:'ja',flag:'🇯🇵',name:'日本語'},
-  {code:'fr',flag:'🇫🇷',name:'Français'},{code:'de',flag:'🇩🇪',name:'Deutsch'},
+function showError(msg){
+  const f=document.getElementById('feed')||document.body;
+  const d=document.createElement('div');
+  d.style.cssText='align-self:center;max-width:92%;font-size:12.5px;color:#fff;background:#b3261e;border-radius:10px;padding:9px 13px;margin:6px auto;text-align:center;white-space:pre-wrap';
+  d.textContent='⛔ '+msg;
+  f.appendChild(d);
+}
+window.addEventListener('error',e=>{showError('JS error: '+e.message+'  @'+(e.lineno||'?'));});
+window.addEventListener('unhandledrejection',e=>{showError('async error: '+(e.reason&&e.reason.message||e.reason));});
+
+const LANGS = [
+  {code:'en',flag:'🇬🇧',name:'English'},
+  {code:'ru',flag:'🇷🇺',name:'Русский'},
+  {code:'uz',flag:'🇺🇿',name:"O'zbekcha"},
+  {code:'es',flag:'🇪🇸',name:'Español'},
+  {code:'ko',flag:'🇰🇷',name:'한국어'},
+  {code:'ja',flag:'🇯🇵',name:'日本語'},
+  {code:'fr',flag:'🇫🇷',name:'Français'},
+  {code:'de',flag:'🇩🇪',name:'Deutsch'},
 ];
-const STARTERS={
+
+const STARTERS = {
   en:["What to see in Samarkand?","Best plov in Tashkent","Tell me about the Registan","Taxi from the airport?"],
   ru:["Что посмотреть в Самарканде?","Лучший плов в Ташкенте","Расскажи про Регистан","Такси из аэропорта?"],
   uz:["Samarqandda nima ko'rish kerak?","Toshkentda eng mazali palov","Registon haqida ayting","Aeroportdan taksi?"],
@@ -115,82 +176,118 @@ const STARTERS={
   fr:["Que voir à Samarcande ?","Meilleur plov à Tachkent","Parlez-moi du Registan","Taxi de l'aéroport ?"],
   de:["Was in Samarkand sehen?","Bester Plov in Taschkent","Erzähl vom Registan","Taxi vom Flughafen?"],
 };
-const WELCOME={
-  en:"Salam! 👋 I'm your personal guide to Uzbekistan. Ask me anything about places, food, history or getting around.",
-  ru:"Салам! 👋 Я ваш личный гид по Узбекистану. Спрашивайте о местах, еде, истории или как добраться.",
-  uz:"Salom! 👋 Men sizning O'zbekiston bo'yicha shaxsiy gidingizman. Joylar, taomlar, tarix haqida so'rang.",
-  es:"¡Salam! 👋 Soy tu guía personal de Uzbekistán. Pregúntame sobre lugares, comida o historia.",
-  ko:"살람! 👋 저는 당신의 우즈베키스탄 개인 가이드입니다. 무엇이든 물어보세요.",
-  ja:"サラーム！👋 私はあなたのウズベキスタン専属ガイドです。何でも聞いてください。",
-  fr:"Salam ! 👋 Je suis votre guide personnel de l'Ouzbékistan. Demandez-moi tout.",
-  de:"Salam! 👋 Ich bin Ihr persönlicher Usbekistan-Guide. Fragen Sie mich alles.",
+
+const WELCOME = {
+  en:"Salam! 👋 I'm your personal guide to Uzbekistan. Ask me anything about places, food, history or getting around — I'll add photos and a map pin when it helps.",
+  ru:"Салам! 👋 Я ваш личный гид по Узбекистану. Спрашивайте о местах, еде, истории или как добраться — я добавлю фото и точку на карте, когда это поможет.",
+  uz:"Salom! 👋 Men sizning O'zbekiston bo'yicha shaxsiy gidingizman. Joylar, taomlar, tarix yoki yo'l haqida so'rang.",
+  es:"¡Salam! 👋 Soy tu guía personal de Uzbekistán. Pregúntame sobre lugares, comida, historia o cómo moverte.",
+  ko:"살람! 👋 저는 당신의 우즈베키스탄 개인 가이드입니다. 장소, 음식, 역사, 이동 방법 등 무엇이든 물어보세요.",
+  ja:"サラーム！👋 私はあなたのウズベキスタン専属ガイドです。場所、食べ物、歴史、移動方法など何でも聞いてください。",
+  fr:"Salam ! 👋 Je suis votre guide personnel de l'Ouzbékistan. Demandez-moi tout sur les lieux, la cuisine, l'histoire.",
+  de:"Salam! 👋 Ich bin Ihr persönlicher Usbekistan-Guide. Fragen Sie mich zu Orten, Essen, Geschichte oder Anreise.",
 };
-const LANGNAME={en:'English',ru:'Russian',uz:'Uzbek',es:'Spanish',ko:'Korean',ja:'Japanese',fr:'French',de:'German'};
 
-let lang='en', history=[];
+const LANGNAME = {en:'English',ru:'Russian',uz:'Uzbek',es:'Spanish',ko:'Korean',ja:'Japanese',fr:'French',de:'German'};
 
+let lang='en';
+let history=[];
+
+// build language grid
 const grid=document.getElementById('lang-grid');
 LANGS.forEach(l=>{
   const b=document.createElement('button');
   b.className='lang-btn';
-  b.innerHTML='<span class="flag">'+l.flag+'</span>'+l.name;
+  b.innerHTML=`<span class="flag">${l.flag}</span>${l.name}`;
   b.onclick=()=>startChat(l.code);
   grid.appendChild(b);
 });
 
 function startChat(code){
-  lang=code;history=[];
+  lang=code;
+  history=[];
   document.getElementById('lang-screen').style.display='none';
   document.getElementById('chat-screen').style.display='flex';
   document.getElementById('feed').innerHTML='';
   addBot(WELCOME[code]||WELCOME.en);
   renderChips();
-  document.getElementById('input').placeholder=code==='ru'?'Спросите гида…':'Ask your guide…';
+  document.getElementById('input').placeholder =
+    code==='ru'?'Спросите гида…':code==='uz'?'Gidga savol bering…':'Ask your guide…';
 }
+
 function resetToLang(){
   document.getElementById('chat-screen').style.display='none';
   document.getElementById('lang-screen').style.display='flex';
 }
+
 function renderChips(){
-  const box=document.getElementById('chips');box.innerHTML='';
+  const box=document.getElementById('chips');
+  box.innerHTML='';
   (STARTERS[lang]||STARTERS.en).forEach(s=>{
-    const c=document.createElement('button');c.className='chip';c.textContent=s;
+    const c=document.createElement('button');
+    c.className='chip';c.textContent=s;
     c.onclick=()=>{document.getElementById('input').value=s;onSend();};
     box.appendChild(c);
   });
 }
+
 function addBot(text){
-  const f=document.getElementById('feed');const d=document.createElement('div');
-  d.className='msg bot';d.innerHTML=text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  const f=document.getElementById('feed');
+  const d=document.createElement('div');
+  d.className='msg bot';
+  d.innerHTML=text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
   f.appendChild(d);f.scrollTop=f.scrollHeight;
+  return d;
 }
 function addMe(text){
-  const f=document.getElementById('feed');const d=document.createElement('div');
-  d.className='msg me';d.textContent=text;f.appendChild(d);f.scrollTop=f.scrollHeight;
+  const f=document.getElementById('feed');
+  const d=document.createElement('div');
+  d.className='msg me';d.textContent=text;
+  f.appendChild(d);f.scrollTop=f.scrollHeight;
 }
-function addPhoto(url,cap){
-  const f=document.getElementById('feed');const d=document.createElement('div');
+function addPhotoBlob(objUrl,cap){
+  const f=document.getElementById('feed');
+  const d=document.createElement('div');
   d.className='feed-photo';
-  d.innerHTML='<img src="'+url+'" alt="'+cap+'"><div class="cap">📍 '+cap+'</div>';
+  const img=document.createElement('img');
+  img.alt=cap;img.src=objUrl;
+  d.appendChild(img);
+  const c=document.createElement('div');
+  c.className='cap';c.textContent='📍 '+cap;
+  d.appendChild(c);
   f.appendChild(d);f.scrollTop=f.scrollHeight;
 }
 function showTyping(){
-  const f=document.getElementById('feed');const t=document.createElement('div');
-  t.className='typing';t.id='typing';t.innerHTML='<span></span><span></span><span></span>';
+  const f=document.getElementById('feed');
+  const t=document.createElement('div');
+  t.className='typing';t.id='typing';
+  t.innerHTML='<span></span><span></span><span></span>';
   f.appendChild(t);f.scrollTop=f.scrollHeight;
 }
 function hideTyping(){const t=document.getElementById('typing');if(t)t.remove();}
 
+function addStatus(text){
+  const f=document.getElementById('feed');
+  const d=document.createElement('div');
+  d.style.cssText='align-self:center;max-width:90%;text-align:center;font-size:13px;color:#8a5a2b;background:#fbe8d4;border:1px solid #e8c98f;border-radius:10px;padding:8px 12px';
+  d.textContent='ℹ️ '+text;
+  f.appendChild(d);f.scrollTop=f.scrollHeight;
+}
+
 async function fetchPhoto(q){
+  // спрашиваем у нашей же серверной прослойки — она ходит в Википедию.
+  // таймаут 9с, чтобы запрос не мог зависнуть молча.
   try{
-    const u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*'+
-      '&generator=search&gsrsearch='+encodeURIComponent(q)+'&gsrlimit=1'+
-      '&prop=pageimages&piprop=thumbnail&pithumbsize=1000';
-    const r=await fetch(u);const data=await r.json();
-    const pages=data.query&&data.query.pages||{};
-    for(const k in pages){const s=pages[k].thumbnail&&pages[k].thumbnail.source;if(s)return s;}
-  }catch(e){}
-  return null;
+    const ctrl=new AbortController();
+    const timer=setTimeout(()=>ctrl.abort(),9000);
+    const r=await fetch('/api/photo?q='+encodeURIComponent(q),{signal:ctrl.signal});
+    clearTimeout(timer);
+    if(!r.ok)return {url:null,reason:'proxy http '+r.status};
+    const d=await r.json();
+    return {url:d.url||null,reason:d.reason||null};
+  }catch(e){
+    return {url:null,reason:'proxy unreachable: '+(e&&e.message||e)};
+  }
 }
 
 const input=document.getElementById('input');
@@ -198,14 +295,16 @@ input.addEventListener('input',()=>{input.style.height='auto';input.style.height
 input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();onSend();}});
 
 async function onSend(){
-  const text=input.value.trim();if(!text)return;
+  const text=input.value.trim();
+  if(!text)return;
   document.getElementById('chips').innerHTML='';
-  addMe(text);input.value='';input.style.height='auto';
+  addMe(text);
+  input.value='';input.style.height='auto';
   history.push({role:'user',content:text});
   document.getElementById('send').disabled=true;
   showTyping();
 
-  const system="You are UzGid, an expert local tour guide for Uzbekistan (Tashkent, Samarkand, Bukhara, Khiva and beyond). Reply ONLY in "+LANGNAME[lang]+". Be warm, lively and concise like a real local guide — 2 to 4 short paragraphs. Give concrete places, dish names, realistic price ranges in UZS and USD, and practical tips. If unsure about a specific local detail, say so honestly rather than inventing it. Decline questions unrelated to travel in Uzbekistan. IMPORTANT: on the very last line, output the main place name ALWAYS IN ENGLISH (Latin script), as English Wikipedia titles it, even though the rest is in "+LANGNAME[lang]+". Format: PHOTO: Registan  or  PHOTO: Bibi-Khanym Mosque  or  PHOTO: none";
+  const system=`You are UzGid, an expert local tour guide for Uzbekistan (Tashkent, Samarkand, Bukhara, Khiva and beyond). Reply ONLY in ${LANGNAME[lang]}. Be warm, lively and concise like a real local guide — 2 to 4 short paragraphs. Give concrete places, dish names, realistic price ranges in UZS and USD, and practical tips. If unsure about a specific local detail, say so honestly rather than inventing it. Decline questions unrelated to travel in Uzbekistan. VERY IMPORTANT: on the very last line, output the main place name ALWAYS IN ENGLISH (Latin script), exactly as English Wikipedia titles it, even though the rest of your reply is in ${LANGNAME[lang]}. Format: PHOTO: Registan  (or)  PHOTO: Bibi-Khanym Mosque  (or)  PHOTO: none`;
 
   try{
     const resp=await fetch("/api/chat",{
@@ -213,20 +312,54 @@ async function onSend(){
       body:JSON.stringify({system:system,messages:history})
     });
     const data=await resp.json();
-    let answer=data.content&&data.content[0]&&data.content[0].text||"…";
+    let answer=data.content?.[0]?.text||"…";
     history.push({role:'assistant',content:answer});
 
     let photoQ=null;
     const m=answer.match(/PHOTO:\s*([^\n]+)/i);
-    if(m&&m[1].trim().toLowerCase()!=='none')photoQ=m[1].trim();
+    if(m){if(m[1].trim().toLowerCase()!=='none')photoQ=m[1].trim();}
     answer=answer.replace(/\n?\s*PHOTO:\s*[^\n]*/i,'').trim();
 
     hideTyping();
-    addBot(answer);
-    if(photoQ){const url=await fetchPhoto(photoQ);if(url)addPhoto(url,photoQ);}
+    const bubble=addBot(answer);
+    const status=document.createElement('div');
+    status.style.cssText='margin-top:8px;padding-top:7px;border-top:1px dashed #d8c9a6;font-size:12.5px;color:#8a5a2b';
+    status.textContent='📷 ищу фото…';
+    bubble.appendChild(status);
+    bubble.parentElement.scrollTop=bubble.parentElement.scrollHeight;
+
+    if(photoQ){
+      const res=await fetchPhoto(photoQ);
+      if(res.url){
+        status.textContent='📷 загружаю картинку…';
+        try{
+          const ctrl=new AbortController();
+          const timer=setTimeout(()=>ctrl.abort(),12000);
+          const ir=await fetch('/api/img?url='+encodeURIComponent(res.url),{signal:ctrl.signal});
+          clearTimeout(timer);
+          if(ir.ok){
+            const blob=await ir.blob();
+            if(blob.size>100){
+              status.remove();
+              addPhotoBlob(URL.createObjectURL(blob),photoQ);
+            }else{
+              status.textContent='📷 пустой ответ ('+blob.size+' байт), type='+blob.type;
+            }
+          }else{
+            status.textContent='📷 сервер картинки ответил: '+ir.status;
+          }
+        }catch(e){
+          status.textContent='📷 ошибка картинки: '+(e&&e.name||'')+' '+(e&&e.message||e);
+        }
+      }else{
+        status.textContent='📷 фото не найдено · '+res.reason;
+      }
+    }else{
+      status.textContent='📷 модель не указала место (нет PHOTO)';
+    }
   }catch(e){
     hideTyping();
-    addBot(lang==='ru'?'⚠️ Попробуйте ещё раз.':'⚠️ Please try again.');
+    showError('onSend failed: '+(e&&e.message||e));
   }
   document.getElementById('send').disabled=false;
 }
