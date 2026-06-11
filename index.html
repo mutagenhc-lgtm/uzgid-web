@@ -129,7 +129,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v7</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v8</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -237,6 +237,7 @@ function addBot(text){
   d.className='msg bot';
   d.innerHTML=text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
   f.appendChild(d);f.scrollTop=f.scrollHeight;
+  return d;
 }
 function addMe(text){
   const f=document.getElementById('feed');
@@ -315,13 +316,19 @@ async function onSend(){
     answer=answer.replace(/\n?\s*PHOTO:\s*[^\n]*/i,'').trim();
 
     hideTyping();
-    addBot(answer);
+    const bubble=addBot(answer);
+    const status=document.createElement('div');
+    status.style.cssText='margin-top:8px;padding-top:7px;border-top:1px dashed #d8c9a6;font-size:12.5px;color:#8a5a2b';
+    status.textContent='📷 ищу фото…';
+    bubble.appendChild(status);
+    bubble.parentElement.scrollTop=bubble.parentElement.scrollHeight;
+
     if(photoQ){
       const res=await fetchPhoto(photoQ);
-      if(res.url){addPhoto(res.url,photoQ);}
-      else{addStatus('Фото не найдено · '+res.reason);}
+      if(res.url){status.remove();addPhoto(res.url,photoQ);}
+      else{status.textContent='📷 фото не найдено · '+res.reason;}
     }else{
-      addStatus('Модель не указала место (нет метки PHOTO)');
+      status.textContent='📷 модель не указала место (нет PHOTO)';
     }
   }catch(e){
     hideTyping();
