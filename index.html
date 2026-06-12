@@ -93,6 +93,8 @@
   .lang-btn:nth-child(7){animation-delay:1.2s}
   .lang-btn:nth-child(8){animation-delay:1.3s}
   .lang-btn:nth-child(9){animation-delay:1.4s}
+  .lang-btn:nth-child(10){animation-delay:1.5s}
+  .lang-btn:nth-child(11){animation-delay:1.6s}
   .lang-btn::before{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;
     background:linear-gradient(120deg,transparent,rgba(207,162,76,0.18),transparent);
     transform:skewX(-20deg);pointer-events:none;
@@ -267,7 +269,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v41</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v42</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -304,6 +306,8 @@ const LANGS = [
   {code:'ja',flag:'🇯🇵',name:'日本語'},
   {code:'fr',flag:'🇫🇷',name:'Français'},
   {code:'de',flag:'🇩🇪',name:'Deutsch'},
+  {code:'it',flag:'🇮🇹',name:'Italiano'},
+  {code:'tr',flag:'🇹🇷',name:'Türkçe'},
   {code:'zh',flag:'🇨🇳',name:'中文'},
 ];
 
@@ -316,6 +320,8 @@ const STARTERS = {
   ja:["サマルカンドの見どころは？","タシュケントの絶品プロフ","レギスタンについて教えて","空港からタクシーは？"],
   fr:["Que voir à Samarcande ?","Meilleur plov à Tachkent","Parlez-moi du Registan","Taxi de l'aéroport ?"],
   de:["Was in Samarkand sehen?","Bester Plov in Taschkent","Erzähl vom Registan","Taxi vom Flughafen?"],
+  it:["Cosa vedere a Samarcanda?","Miglior plov a Tashkent","Parlami del Registan","Taxi dall'aeroporto?"],
+  tr:["Semerkant'ta ne görmeli?","Taşkent'te en iyi pilav","Registan hakkında anlat","Havalimanından taksi?"],
   zh:["撒马尔罕有什么看的？","塔什干最好吃的手抓饭","介绍一下雷吉斯坦广场","机场打车多少钱？"],
 };
 
@@ -328,10 +334,12 @@ const WELCOME = {
   ja:"サラーム！👋 私はあなたのウズベキスタン専属ガイドです。場所、食べ物、歴史、移動方法など何でも聞いてください。",
   fr:"Salam ! 👋 Je suis votre guide personnel de l'Ouzbékistan. Demandez-moi tout sur les lieux, la cuisine, l'histoire.",
   de:"Salam! 👋 Ich bin Ihr persönlicher Usbekistan-Guide. Fragen Sie mich zu Orten, Essen, Geschichte oder Anreise.",
+  it:"Salam! 👋 Sono la tua guida personale per l'Uzbekistan. Chiedimi di luoghi, cibo, storia o come spostarti.",
+  tr:"Salam! 👋 Ben sizin kişisel Özbekistan rehberinizim. Yerler, yemekler, tarih ve ulaşım hakkında her şeyi sorabilirsiniz.",
   zh:"你好！👋 我是您的乌兹别克斯坦私人导游。无论是景点、美食、历史还是出行，尽管问我，我会附上照片帮助理解。",
 };
 
-const LANGNAME = {en:'English',ru:'Russian',uz:'Uzbek',es:'Spanish',ko:'Korean',ja:'Japanese',fr:'French',de:'German',zh:'Chinese (Simplified)'};
+const LANGNAME = {en:'English',ru:'Russian',uz:'Uzbek',es:'Spanish',ko:'Korean',ja:'Japanese',fr:'French',de:'German',it:'Italian',tr:'Turkish',zh:'Chinese (Simplified)'};
 
 let lang='en';
 let history=[];
