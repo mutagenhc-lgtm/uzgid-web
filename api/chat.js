@@ -120,8 +120,9 @@ function looksLikeDontKnow(text) {
   return DONT_KNOW.some((p) => t.includes(p));
 }
 
-// Самопроверка: спрашиваем Claude, ответил ли он на конкретный вопрос
-// пользователя, или ушёл в общую тему. Возвращает true, если промах.
+// Самопроверка: спрашиваем Claude, попал ли его ответ в конкретный вопрос.
+// Жёстче чем раньше — требуем явных признаков идентификации именно того,
+// что спрашивали (не общую тему).
 async function answerIsOffTopic(key, userMessage, answer) {
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -135,12 +136,19 @@ async function answerIsOffTopic(key, userMessage, answer) {
         model: "claude-haiku-4-5-20251001",
         max_tokens: 5,
         system:
-          "You are a strict QA judge. The user asked about a SPECIFIC named place, dish, person, or entity in Uzbekistan. The assistant answered. Decide: did the assistant give information about that EXACT named thing, or did it go off-topic to a general explanation? Reply with a single word: SPECIFIC or GENERAL. Reply GENERAL when the assistant talked around the topic without identifying the actual named place/entity.",
+          "You are a strict QA judge for a tourism chatbot. " +
+          "The user named a SPECIFIC entity (a restaurant, cafe, dish, hotel, person, business). " +
+          "Decide if the assistant's answer demonstrates concrete knowledge of THAT specific named entity: " +
+          "address/district, what it is exactly, prices, hours, what makes IT specifically notable. " +
+          "If the answer only talks about the general category (e.g., 'plov is a national dish, here are famous places to try plov') " +
+          "without identifying the actual named entity the user asked about, reply GENERAL. " +
+          "If the assistant describes the actual named entity itself, reply SPECIFIC. " +
+          "Reply with ONE word only: SPECIFIC or GENERAL.",
         messages: [
           {
             role: "user",
             content:
-              "USER QUESTION:\n" + userMessage + "\n\nASSISTANT ANSWER:\n" + answer + "\n\nVerdict?",
+              "USER QUESTION:\n" + userMessage + "\n\nASSISTANT ANSWER:\n" + answer + "\n\nVerdict (SPECIFIC or GENERAL)?",
           },
         ],
       }),
@@ -149,7 +157,7 @@ async function answerIsOffTopic(key, userMessage, answer) {
     const v = (data.content && data.content[0] && data.content[0].text) || "";
     return /GENERAL/i.test(v);
   } catch (e) {
-    return false; // при ошибке самопроверки не дёргаем фолбэк
+    return false;
   }
 }
 
@@ -172,13 +180,12 @@ export default async function handler(req, res) {
     // 1) Сначала Claude
     let { text, raw, ok } = await askClaude(claudeKey, fullSystem, messages);
     let usedModel = "claude";
+    let route = "c-ok"; // что именно произошло
 
     // Берём последний пользовательский вопрос для самопроверки
     const lastUser = (messages || []).filter((m) => m.role === "user").slice(-1)[0];
     const userText = lastUser && typeof lastUser.content === "string" ? lastUser.content : "";
 
-    // Эвристика: если в вопросе есть имя собственное (заглавные буквы
-    // посреди фразы или кавычки) — стоит проверить, попал ли ответ в цель
     const hasNamedEntity =
       /[«"'].+?["'»]/.test(userText) ||
       /\b[A-ZА-ЯЁ][\wА-Яа-яёЁ'-]+(?:\s+[A-ZА-ЯЁ][\wА-Яа-яёЁ'-]+)+/.test(userText) ||
@@ -186,27 +193,32 @@ export default async function handler(req, res) {
 
     let shouldFallback = false;
     if (!ok || !text) {
-      shouldFallback = true;
+      shouldFallback = true; route = "c-fail";
     } else if (looksLikeDontKnow(text)) {
-      shouldFallback = true;
+      shouldFallback = true; route = "c-dontknow";
     } else if (hasNamedEntity && geminiKey) {
-      // дорогая проверка — только когда дёшево и осмысленно
-      shouldFallback = await answerIsOffTopic(claudeKey, userText, text);
+      const offTopic = await answerIsOffTopic(claudeKey, userText, text);
+      if (offTopic) { shouldFallback = true; route = "c-offtopic"; }
+      else { route = "c-specific"; }
+    } else if (hasNamedEntity && !geminiKey) {
+      route = "c-no-gemini-key";
     }
 
-    // 2) Фолбэк на Gemini
     if (geminiKey && shouldFallback) {
       const g = await askGemini(geminiKey, fullSystem, messages);
       if (g.ok && g.text && !looksLikeDontKnow(g.text)) {
         text = g.text;
         usedModel = "gemini";
+        route += "→g-ok";
+      } else {
+        route += "→g-failed";
       }
     }
 
-    // Возвращаем ответ в формате, который ждёт фронтенд (как у Anthropic)
     res.status(200).json({
       content: [{ type: "text", text }],
       _model: usedModel,
+      _route: route,
     });
   } catch (e) {
     res.status(500).json({ error: "Upstream request failed: " + e.message });
