@@ -36,12 +36,6 @@ async function searchOne(textQuery, key) {
         body: JSON.stringify({
           textQuery,
           maxResultCount: 1,
-          locationBias: {
-            circle: {
-              center: { latitude: 41.31, longitude: 69.27 },
-              radius: 500000.0,
-            },
-          },
         }),
       }
     );
