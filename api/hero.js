@@ -3,7 +3,7 @@
 // и отдаёт браузеру с нашего домена. Кэшируется на сутки.
 
 const KALYAN_URL =
-  "https://commons.wikimedia.org/wiki/File:Kalan_Minaret_01.jpg";
+  "https://upload.wikimedia.org/wikipedia/commons/3/30/Kalan_Minaret_01.jpg";
 
 export default async function handler(req, res) {
   try {
