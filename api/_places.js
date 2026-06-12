@@ -3,19 +3,19 @@
 // Никакого текста не сочиняет — это работа AI выше по цепочке.
 
 export async function findPlace(query, key) {
-  if (!key || !query) return null;
-  // Несколько попыток в разных формулировках — Google Places чувствителен к
-  // языку и формулировке. Возвращаем первое попадание.
+  if (!key || !query) return { error: "no-key-or-query" };
   const variants = [
     query + " Uzbekistan",
     query + " Tashkent",
-    query, // как есть
+    query,
   ];
+  let lastDiag = "no-variants";
   for (const q of variants) {
     const found = await searchOne(q, key);
-    if (found) return found;
+    if (found && found.name) return found;
+    if (found && found._diag) lastDiag = found._diag;
   }
-  return null;
+  return { _diag: lastDiag };
 }
 
 async function searchOne(textQuery, key) {
@@ -45,10 +45,17 @@ async function searchOne(textQuery, key) {
         }),
       }
     );
-    if (!r.ok) return null;
+    if (!r.ok) {
+      const txt = await r.text();
+      return { _diag: "http" + r.status + ":" + txt.slice(0, 80) };
+    }
     const data = await r.json();
     const place = data.places && data.places[0];
-    if (!place) return null;
+    if (!place) {
+      // вернули 200 ok, но без results — самая частая загадка
+      const keys = Object.keys(data || {}).join(",");
+      return { _diag: "empty(" + keys + ")" };
+    }
     return {
       name: place.displayName?.text || textQuery,
       address: place.formattedAddress || "",
@@ -63,6 +70,6 @@ async function searchOne(textQuery, key) {
       mapsUrl: place.googleMapsUri || "",
     };
   } catch (e) {
-    return null;
+    return { _diag: "exc:" + (e.message || "").slice(0, 50) };
   }
 }
