@@ -38,10 +38,10 @@
     color:var(--sand);
     position:relative;overflow:hidden;
   }
-  #lang-screen .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;
-    z-index:0;opacity:0;animation:fadein 1.4s ease-out 0.2s forwards}
-  #lang-screen .photo-veil{position:absolute;inset:0;z-index:1;pointer-events:none;
-    background:linear-gradient(180deg,rgba(10,31,63,0.85) 0%,rgba(10,31,63,0.55) 35%,rgba(10,31,63,0.7) 70%,rgba(15,53,107,0.95) 100%)}
+  #lang-screen .hero-art{position:absolute;right:-40px;bottom:0;width:60%;max-width:340px;height:auto;
+    z-index:1;opacity:0;animation:risein 1.2s ease-out 0.3s forwards;
+    filter:drop-shadow(0 4px 18px rgba(207,162,76,0.25))}
+  @keyframes risein{from{opacity:0;transform:translateY(40px)}to{opacity:0.85;transform:translateY(0)}}
   #lang-screen .bg-tile{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;opacity:0.7}
   #lang-screen .sunset{position:absolute;left:0;right:0;bottom:0;height:55%;
     background:radial-gradient(ellipse at 50% 100%,rgba(207,162,76,0.35) 0%,rgba(207,162,76,0.12) 35%,transparent 70%);
@@ -54,10 +54,7 @@
   #lang-screen .stars .s3{top:22%;left:40%;animation-delay:1.2s}
   #lang-screen .stars .s4{top:5%;left:88%;animation-delay:1.8s;width:2px;height:2px}
   #lang-screen .stars .s5{top:18%;left:8%;animation-delay:2.4s;width:2px;height:2px}
-  #lang-screen .credit{position:absolute;bottom:6px;left:0;right:0;text-align:center;
-    font-size:9.5px;color:rgba(244,236,216,0.4);z-index:4;letter-spacing:0.5px}
   @keyframes twinkle{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
-  @keyframes fadein{to{opacity:1}}
   @keyframes slidein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   #lang-screen .top{padding:54px 28px 10px;position:relative;z-index:3}
   .brand{display:flex;align-items:center;gap:12px;margin-bottom:22px;opacity:0;animation:slidein 0.6s ease-out 0.3s forwards}
@@ -153,9 +150,83 @@
 
   <!-- ====== LANGUAGE SCREEN ====== -->
   <section id="lang-screen">
-    <!-- ночное фото минарета Калян (Wikimedia Commons, свободная лицензия) -->
-    <img class="hero-photo" src="/api/hero" alt="" aria-hidden="true" loading="eager">
-    <div class="photo-veil"></div>
+    <!-- Иллюстрация минарета Калян: высокий силуэт с орнаментальными поясами -->
+    <svg class="hero-art" viewBox="0 0 400 600" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="brick" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#3d2817"/>
+          <stop offset="50%" stop-color="#6b4423"/>
+          <stop offset="100%" stop-color="#3d2817"/>
+        </linearGradient>
+        <linearGradient id="brick-light" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#5a3a22"/>
+          <stop offset="50%" stop-color="#8b5a2e"/>
+          <stop offset="100%" stop-color="#5a3a22"/>
+        </linearGradient>
+        <radialGradient id="lantern-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffd97a" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="#cfa24c" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="#cfa24c" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- свечение вокруг фонаря на верхушке -->
+      <ellipse cx="200" cy="100" rx="180" ry="100" fill="url(#lantern-glow)"/>
+
+      <!-- основной ствол минарета, сужающийся кверху -->
+      <path d="M165 600 L172 150 L228 150 L235 600 Z" fill="url(#brick)"/>
+
+      <!-- 12 декоративных поясов (как на реальном Каляне) -->
+      <g stroke="#cfa24c" stroke-width="0.4" fill="none" opacity="0.7">
+        <rect x="172" y="160" width="56" height="22" fill="url(#brick-light)"/>
+        <path d="M172 165 L228 165 M172 170 L228 170 M172 175 L228 175" />
+        <rect x="170" y="200" width="60" height="14" fill="url(#brick-light)"/>
+        <path d="M170 207 L230 207"/>
+        <rect x="168" y="240" width="64" height="26" fill="url(#brick-light)"/>
+        <g stroke="#cfa24c" stroke-width="0.7">
+          <path d="M174 246 L182 254 L174 262 M188 246 L196 254 L188 262 M202 246 L210 254 L202 262 M216 246 L224 254 L216 262"/>
+        </g>
+        <rect x="166" y="290" width="68" height="14" fill="url(#brick-light)"/>
+        <rect x="164" y="330" width="72" height="22" fill="url(#brick-light)"/>
+        <g>
+          <circle cx="174" cy="341" r="3"/><circle cx="186" cy="341" r="3"/>
+          <circle cx="198" cy="341" r="3"/><circle cx="210" cy="341" r="3"/>
+          <circle cx="222" cy="341" r="3"/>
+        </g>
+        <rect x="162" y="380" width="76" height="14" fill="url(#brick-light)"/>
+        <rect x="160" y="420" width="80" height="22" fill="url(#brick-light)"/>
+        <path d="M160 426 L240 426 M160 432 L240 432 M160 438 L240 438"/>
+        <rect x="158" y="475" width="84" height="14" fill="url(#brick-light)"/>
+        <rect x="155" y="520" width="90" height="24" fill="url(#brick-light)"/>
+        <g stroke="#cfa24c" stroke-width="0.7">
+          <path d="M165 532 L165 526 L171 526 L171 532 M177 532 L177 526 L183 526 L183 532 M189 532 L189 526 L195 526 L195 532 M201 532 L201 526 L207 526 L207 532 M213 532 L213 526 L219 526 L219 532 M225 532 L225 526 L231 526 L231 532"/>
+        </g>
+      </g>
+
+      <!-- основание с арками -->
+      <rect x="148" y="555" width="104" height="45" fill="#2a1810"/>
+      <path d="M160 600 L160 580 Q170 568 180 580 L180 600 Z" fill="#15356b"/>
+      <path d="M195 600 L195 575 Q205 562 215 575 L215 600 Z" fill="#15356b"/>
+      <path d="M230 600 L230 580 Q240 568 250 580 L250 600 Z" fill="#15356b"/>
+
+      <!-- фонарь (галерея муэдзина) сверху -->
+      <ellipse cx="200" cy="135" rx="35" ry="10" fill="#2a1810"/>
+      <rect x="175" y="105" width="50" height="30" fill="#3d2817"/>
+      <!-- арочные окна фонаря с золотым светом -->
+      <g fill="#cfa24c">
+        <path d="M180 130 L180 118 Q183 113 186 118 L186 130 Z"/>
+        <path d="M192 130 L192 118 Q195 113 198 118 L198 130 Z"/>
+        <path d="M204 130 L204 118 Q207 113 210 118 L210 130 Z"/>
+        <path d="M216 130 L216 118 Q219 113 222 118 L222 130 Z"/>
+      </g>
+      <!-- купольная крыша фонаря -->
+      <path d="M173 105 Q200 80 227 105 Z" fill="#1f8f93"/>
+      <path d="M173 105 Q200 80 227 105" fill="none" stroke="#cfa24c" stroke-width="0.6"/>
+      <!-- шпиль -->
+      <path d="M200 80 L200 65" stroke="#cfa24c" stroke-width="2"/>
+      <circle cx="200" cy="63" r="3" fill="#cfa24c"/>
+      <path d="M200 60 L201 55 L199 55 Z" fill="#cfa24c"/>
+    </svg>
 
     <!-- мозаичный фон-сетка с гирихом, повторяющийся узор -->
     <svg class="bg-tile" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -188,7 +259,6 @@
       <div class="pick">Choose your language</div>
     </div>
     <div class="langs" id="lang-grid"></div>
-    <div class="credit">Photo: Minorai Kalon by Wikimedia Commons (CC BY-SA)</div>
   </section>
 
   <!-- ====== CHAT SCREEN ====== -->
@@ -197,7 +267,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v37</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v38</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
