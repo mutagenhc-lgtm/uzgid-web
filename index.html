@@ -34,10 +34,26 @@
   /* ---------- language screen ---------- */
   #lang-screen{
     flex:1;display:flex;flex-direction:column;
-    background:var(--cobalt);color:var(--sand);
+    background:linear-gradient(180deg,#0a1f3f 0%,#15356b 45%,#1f3a6b 100%);
+    color:var(--sand);
     position:relative;overflow:hidden;
   }
-  #lang-screen .top{padding:54px 28px 10px;position:relative;z-index:2}
+  #lang-screen .bg-tile{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+  #lang-screen .sunset{position:absolute;left:0;right:0;bottom:0;height:55%;
+    background:radial-gradient(ellipse at 50% 100%,rgba(207,162,76,0.35) 0%,rgba(207,162,76,0.12) 35%,transparent 70%);
+    pointer-events:none;z-index:1}
+  #lang-screen .skyline{position:absolute;left:0;right:0;bottom:0;width:100%;height:170px;pointer-events:none;z-index:2;opacity:0.95;
+    filter:drop-shadow(0 -4px 8px rgba(0,0,0,0.3))}
+  #lang-screen .stars{position:absolute;inset:0;pointer-events:none;z-index:2}
+  #lang-screen .stars .s{position:absolute;width:3px;height:3px;border-radius:50%;background:#cfa24c;
+    box-shadow:0 0 8px #cfa24c;animation:twinkle 3.2s infinite ease-in-out}
+  #lang-screen .stars .s1{top:8%;left:18%;animation-delay:0s}
+  #lang-screen .stars .s2{top:14%;left:72%;animation-delay:0.6s}
+  #lang-screen .stars .s3{top:22%;left:40%;animation-delay:1.2s}
+  #lang-screen .stars .s4{top:5%;left:88%;animation-delay:1.8s;width:2px;height:2px}
+  #lang-screen .stars .s5{top:18%;left:8%;animation-delay:2.4s;width:2px;height:2px}
+  @keyframes twinkle{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+  #lang-screen .top{padding:54px 28px 10px;position:relative;z-index:3}
   .brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}
   .brand-star{width:38px;height:38px;flex-shrink:0}
   .brand-name{font-size:25px;font-weight:700;letter-spacing:.5px}
@@ -47,20 +63,26 @@
   .sub{margin-top:14px;font-size:15px;line-height:1.6;color:#cdd8ea;max-width:30ch}
   .pick{margin-top:26px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
   .langs{
-    position:relative;z-index:2;
-    padding:14px 22px 30px;
+    position:relative;z-index:3;
+    padding:14px 22px 150px;
     display:grid;grid-template-columns:1fr 1fr;gap:11px;
     overflow-y:auto;
   }
   .lang-btn{
     display:flex;align-items:center;gap:11px;
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.16);
+    background:rgba(15,30,60,0.55);
+    border:1px solid rgba(207,162,76,.35);
     border-radius:14px;padding:14px 15px;
     color:var(--sand);font-size:15.5px;font-weight:500;
-    cursor:pointer;transition:.18s;
+    cursor:pointer;transition:.22s;
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    position:relative;overflow:hidden;
   }
-  .lang-btn:hover,.lang-btn:active{background:var(--turq);border-color:var(--turq-light)}
+  .lang-btn::before{content:"";position:absolute;top:0;right:-20px;width:60px;height:100%;
+    background:linear-gradient(120deg,transparent,rgba(207,162,76,0.12),transparent);
+    transform:skewX(-20deg);pointer-events:none}
+  .lang-btn:hover,.lang-btn:active{background:var(--turq);border-color:var(--gold);transform:translateY(-1px)}
   .lang-btn .flag{font-size:22px}
 
   /* ---------- chat screen ---------- */
@@ -109,8 +131,52 @@
 
   <!-- ====== LANGUAGE SCREEN ====== -->
   <section id="lang-screen">
-    <svg class="girih" style="width:340px;top:-60px;right:-90px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
-    <svg class="girih" style="width:200px;bottom:120px;left:-60px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
+    <!-- мозаичный фон-сетка с гирихом, повторяющийся узор -->
+    <svg class="bg-tile" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <pattern id="girih" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+          <path d="M40 6l8 18 19 3-13 13 3 19-17-9-17 9 3-19-13-13 19-3z" fill="none" stroke="#3bb3a8" stroke-width="0.8" opacity="0.45"/>
+          <circle cx="40" cy="40" r="2" fill="#cfa24c" opacity="0.6"/>
+          <path d="M0 40 L80 40 M40 0 L40 80" stroke="#3bb3a8" stroke-width="0.3" opacity="0.25"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#girih)"/>
+    </svg>
+
+    <!-- закатное золотое свечение снизу -->
+    <div class="sunset"></div>
+
+    <!-- силуэт Регистана -->
+    <svg class="skyline" viewBox="0 0 400 120" preserveAspectRatio="xMidYEnd meet" aria-hidden="true">
+      <!-- левый минарет -->
+      <path d="M30 120 L30 50 Q30 42 36 42 Q42 42 42 50 L42 120 Z" fill="#0e2548"/>
+      <circle cx="36" cy="38" r="6" fill="#cfa24c"/>
+      <path d="M36 26 L38 32 L34 32 Z" fill="#cfa24c"/>
+      <!-- левое медресе -->
+      <path d="M55 120 L55 60 L75 60 L75 40 Q90 25 105 40 L105 60 L125 60 L125 120 Z" fill="#15356b"/>
+      <path d="M75 60 L75 40 Q90 25 105 40 L105 60 Z" fill="#1f8f93"/>
+      <path d="M90 35 a8 12 0 0 1 0 24" fill="none" stroke="#cfa24c" stroke-width="1.5" opacity="0.5"/>
+      <!-- центральное медресе (большое) -->
+      <path d="M140 120 L140 65 L165 65 L165 30 Q200 5 235 30 L235 65 L260 65 L260 120 Z" fill="#15356b"/>
+      <ellipse cx="200" cy="32" rx="38" ry="32" fill="#1f8f93"/>
+      <path d="M200 4 L203 14 L197 14 Z" fill="#cfa24c"/>
+      <path d="M180 65 L180 88 Q200 78 220 88 L220 65 Z" fill="#3bb3a8" opacity="0.7"/>
+      <rect x="195" y="75" width="10" height="20" fill="#0e2548"/>
+      <!-- правое медресе -->
+      <path d="M275 120 L275 60 L295 60 L295 40 Q310 25 325 40 L325 60 L345 60 L345 120 Z" fill="#15356b"/>
+      <path d="M295 60 L295 40 Q310 25 325 40 L325 60 Z" fill="#1f8f93"/>
+      <!-- правый минарет -->
+      <path d="M358 120 L358 50 Q358 42 364 42 Q370 42 370 50 L370 120 Z" fill="#0e2548"/>
+      <circle cx="364" cy="38" r="6" fill="#cfa24c"/>
+      <path d="M364 26 L366 32 L362 32 Z" fill="#cfa24c"/>
+    </svg>
+
+    <!-- мерцающие звёзды (медленная анимация) -->
+    <div class="stars" aria-hidden="true">
+      <span class="s s1"></span><span class="s s2"></span><span class="s s3"></span>
+      <span class="s s4"></span><span class="s s5"></span>
+    </div>
+
     <div class="top">
       <div class="brand">
         <svg class="brand-star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
@@ -129,7 +195,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v33</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v35</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -137,6 +203,8 @@
     <div id="feed"></div>
     <div class="chips" id="chips"></div>
     <footer class="compose">
+      <button id="camera" onclick="document.getElementById('photo-input').click()" style="flex-shrink:0;width:46px;height:46px;border-radius:50%;border:1px solid #d8c9a6;background:#fbf6ea;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Распознать фото">📷</button>
+      <input id="photo-input" type="file" accept="image/*" capture="environment" style="display:none" onchange="onPhotoPicked(event)">
       <textarea id="input" rows="1" placeholder="Ask your guide…"></textarea>
       <button id="send" onclick="onSend()">➤</button>
     </footer>
@@ -374,6 +442,170 @@ const input=document.getElementById('input');
 input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,110)+'px';});
 input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();onSend();}});
 
+async function attachPhotoAndMap(bubble,photoQ){
+  const status=document.createElement('div');
+  status.style.cssText='margin-top:8px;padding-top:7px;border-top:1px dashed #d8c9a6;font-size:12.5px;color:#8a5a2b';
+  status.textContent='📷 ищу фото…';
+  bubble.appendChild(status);
+  bubble.parentElement.scrollTop=bubble.parentElement.scrollHeight;
+  try{
+    const ctrl=new AbortController();
+    const timer=setTimeout(()=>ctrl.abort(),15000);
+    const r=await fetch('/api/photo?q='+encodeURIComponent(photoQ),{signal:ctrl.signal});
+    clearTimeout(timer);
+    const d=await r.json();
+    let hadAnything=false;
+    if(d.dataUrl){
+      hadAnything=true;
+      const f=document.getElementById('feed');
+      const img=document.createElement('img');
+      img.alt=photoQ;
+      img.style.cssText='display:block;width:86%;max-width:380px;height:auto;align-self:flex-start;border-radius:14px;border:1px solid #e9dcc0;background:#fbf6ea';
+      img.onload=function(){status.remove();};
+      img.onerror=function(){status.textContent='📷 картинка не открывается';img.remove();};
+      f.appendChild(img);
+      const cap=document.createElement('div');
+      cap.style.cssText='align-self:flex-start;font-size:12.5px;color:#5b554a;padding:0 4px;margin-top:-6px';
+      cap.textContent='📍 '+photoQ;
+      f.appendChild(cap);
+      img.src=d.dataUrl;
+    }
+    if(d.lat&&d.lon){
+      hadAnything=true;
+      addLocation(photoQ,d.lat,d.lon);
+      if(!d.dataUrl)status.remove();
+    }
+    if(!hadAnything){
+      status.textContent='📷 '+(d.reason||'нет фото');
+    }
+    document.getElementById('feed').scrollTop=document.getElementById('feed').scrollHeight;
+  }catch(e){
+    status.textContent='📷 ошибка: '+(e&&e.name||'')+' '+(e&&e.message||e);
+  }
+}
+
+const FREE_PHOTOS = 5;
+function photosUsed(){
+  try{return parseInt(localStorage.getItem('uzgid_photos_used')||'0',10);}catch(e){return 0;}
+}
+function bumpPhotosUsed(){
+  try{localStorage.setItem('uzgid_photos_used',String(photosUsed()+1));}catch(e){}
+}
+
+async function onPhotoPicked(ev){
+  const file=ev.target.files&&ev.target.files[0];
+  ev.target.value=''; // чтобы можно было выбрать тот же файл повторно
+  if(!file)return;
+
+  // Пейволл: 5 бесплатных фото на устройство
+  if(photosUsed()>=FREE_PHOTOS){
+    showPaywall();
+    return;
+  }
+
+  // Сжимаем картинку до ~1024px, чтобы быстро отправлялась и стоила дёшево
+  const dataUrl=await compressImage(file,1024);
+  if(!dataUrl){addBot('⚠️ Не удалось обработать фото');return;}
+
+  // Показываем превью в ленте как сообщение от пользователя
+  const f=document.getElementById('feed');
+  const me=document.createElement('img');
+  me.src=dataUrl;
+  me.style.cssText='align-self:flex-end;max-width:55%;border-radius:14px;border:2px solid #15356b';
+  f.appendChild(me);f.scrollTop=f.scrollHeight;
+
+  document.getElementById('chips').innerHTML='';
+  document.getElementById('send').disabled=true;
+  showTyping();
+
+  // Готовим сообщение в формате Anthropic vision
+  const base64=dataUrl.replace(/^data:image\/\w+;base64,/,'');
+  const mediaType=(dataUrl.match(/^data:(image\/\w+);/)||[])[1]||'image/jpeg';
+  const visionMessage={
+    role:'user',
+    content:[
+      {type:'image',source:{type:'base64',media_type:mediaType,data:base64}},
+      {type:'text',text:'The tourist sent this photo from their trip in Uzbekistan. Identify the place, landmark, dish or object if you can, and tell them about it like a local guide. If you are not sure what it is, say so honestly and describe what you see.'},
+    ],
+  };
+  history.push(visionMessage);
+
+  const system="You are UzGid, an expert local tour guide for Uzbekistan. Reply ONLY in "+LANGNAME[lang]+". Be warm, lively, concise — 2–4 short paragraphs. If you recognize the place or dish in the photo, name it specifically and give concrete details. If unsure, say so honestly and describe what you see. On the very last line output: PHOTO: <main place name in English, Wikipedia-style> or PHOTO: none";
+
+  try{
+    const resp=await fetch('/api/chat',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({system,messages:history})
+    });
+    const data=await resp.json();
+    let answer=data.content?.[0]?.text||'…';
+    const model=data._model||'claude';
+    const route=data._route||'';
+    history.push({role:'assistant',content:answer});
+
+    // Чтобы в следующих текстовых вопросах не тащить тяжёлую картинку
+    if(history.length>=2)history[history.length-2].content='[sent a photo]';
+
+    let photoQ=null;
+    const m=answer.match(/PHOTO:\s*([^\n]+)/i);
+    if(m&&m[1].trim().toLowerCase()!=='none')photoQ=m[1].trim();
+    answer=answer.replace(/\n?\s*PHOTO:\s*[^\n]*/i,'').trim();
+
+    hideTyping();
+    const bubble=addBot(answer,model,route);
+    addFeedback(bubble,'[photo]',answer);
+    bumpPhotosUsed();
+
+    if(photoQ){await attachPhotoAndMap(bubble,photoQ);}
+  }catch(e){
+    hideTyping();
+    addBot('⚠️ '+(lang==='ru'?'Не удалось распознать фото.':'Could not analyse the photo.'));
+  }
+  document.getElementById('send').disabled=false;
+}
+
+function compressImage(file,maxSide){
+  return new Promise((resolve)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const ratio=Math.min(1,maxSide/Math.max(img.width,img.height));
+      const w=Math.round(img.width*ratio),h=Math.round(img.height*ratio);
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(c.toDataURL('image/jpeg',0.85));
+    };
+    img.onerror=()=>resolve(null);
+    const r=new FileReader();
+    r.onload=(e)=>{img.src=e.target.result;};
+    r.onerror=()=>resolve(null);
+    r.readAsDataURL(file);
+  });
+}
+
+function showPaywall(){
+  const back=document.createElement('div');
+  back.style.cssText='position:fixed;inset:0;background:rgba(14,37,72,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px';
+  back.onclick=(e)=>{if(e.target===back)back.remove();};
+  const card=document.createElement('div');
+  card.style.cssText='background:#fbf6ea;border-radius:18px;padding:22px;max-width:340px;width:100%;text-align:center';
+  card.innerHTML=
+    '<div style="font-size:42px;margin-bottom:8px">📷</div>'+
+    '<div style="font-size:18px;font-weight:600;margin-bottom:8px">'+(lang==='ru'?'Лимит бесплатных фото':'Free photo limit')+'</div>'+
+    '<div style="font-size:14px;color:#5b554a;margin-bottom:18px">'+(lang==='ru'?'Вы использовали 5 бесплатных распознаваний фото. Безлимитный доступ на всю поездку — $5.':'You used 5 free photo recognitions. Unlimited for your whole trip — $5.')+'</div>';
+  const btn=document.createElement('button');
+  btn.type='button';btn.textContent=lang==='ru'?'💳 Открыть доступ':'💳 Get unlimited';
+  btn.style.cssText='width:100%;background:#c0633a;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px';
+  btn.onclick=()=>{alert(lang==='ru'?'Оплата скоро будет доступна 🙏':'Payments coming soon 🙏');};
+  card.appendChild(btn);
+  const close=document.createElement('button');
+  close.type='button';close.textContent=lang==='ru'?'Позже':'Later';
+  close.style.cssText='width:100%;background:transparent;color:#5b554a;border:none;padding:8px;font-size:14px;cursor:pointer;font-family:inherit';
+  close.onclick=()=>back.remove();
+  card.appendChild(close);
+  back.appendChild(card);
+  document.body.appendChild(back);
+}
+
 async function onSend(){
   const text=input.value.trim();
   if(!text)return;
@@ -405,47 +637,7 @@ async function onSend(){
     hideTyping();
     const bubble=addBot(answer,model,route);
     addFeedback(bubble,text,answer);
-    if(photoQ){
-      const status=document.createElement('div');
-      status.style.cssText='margin-top:8px;padding-top:7px;border-top:1px dashed #d8c9a6;font-size:12.5px;color:#8a5a2b';
-      status.textContent='📷 ищу фото…';
-      bubble.appendChild(status);
-      bubble.parentElement.scrollTop=bubble.parentElement.scrollHeight;
-      try{
-        const ctrl=new AbortController();
-        const timer=setTimeout(()=>ctrl.abort(),15000);
-        const r=await fetch('/api/photo?q='+encodeURIComponent(photoQ),{signal:ctrl.signal});
-        clearTimeout(timer);
-        const d=await r.json();
-        let hadAnything=false;
-        if(d.dataUrl){
-          hadAnything=true;
-          const f=document.getElementById('feed');
-          const img=document.createElement('img');
-          img.alt=photoQ;
-          img.style.cssText='display:block;width:86%;max-width:380px;height:auto;align-self:flex-start;border-radius:14px;border:1px solid #e9dcc0;background:#fbf6ea';
-          img.onload=function(){status.remove();};
-          img.onerror=function(){status.textContent='📷 картинка не открывается';img.remove();};
-          f.appendChild(img);
-          const cap=document.createElement('div');
-          cap.style.cssText='align-self:flex-start;font-size:12.5px;color:#5b554a;padding:0 4px;margin-top:-6px';
-          cap.textContent='📍 '+photoQ;
-          f.appendChild(cap);
-          img.src=d.dataUrl;
-        }
-        if(d.lat&&d.lon){
-          hadAnything=true;
-          addLocation(photoQ,d.lat,d.lon);
-          if(!d.dataUrl)status.remove();
-        }
-        if(!hadAnything){
-          status.textContent='📷 '+(d.reason||'нет фото');
-        }
-        document.getElementById('feed').scrollTop=document.getElementById('feed').scrollHeight;
-      }catch(e){
-        status.textContent='📷 ошибка: '+(e&&e.name||'')+' '+(e&&e.message||e);
-      }
-    }
+    if(photoQ){await attachPhotoAndMap(bubble,photoQ);}
   }catch(e){
     hideTyping();
     addBot(lang==='ru'?'⚠️ Попробуйте ещё раз.':'⚠️ Please try again.');
