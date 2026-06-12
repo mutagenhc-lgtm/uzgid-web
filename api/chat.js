@@ -198,7 +198,7 @@ export default async function handler(req, res) {
     } else {
       try {
         placesData = await findPlace(userText, placesKey);
-        placesStatus = placesData ? "found" : "miss";
+        placesStatus = placesData ? "found:" + placesData.name.slice(0, 25) : "miss";
       } catch (e) {
         placesStatus = "error:" + (e.message || "").slice(0, 30);
       }
