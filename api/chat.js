@@ -3,6 +3,7 @@
 // сказал, что не знает места.
 
 import { FACTS } from "./_facts.js";
+import { findPlace } from "./_places.js";
 
 let redis = null;
 try {
@@ -175,28 +176,55 @@ export default async function handler(req, res) {
   try {
     const { system, messages } = req.body || {};
     const knowledge = await buildKnowledge();
-    const fullSystem = (system || "") + knowledge;
 
-    // 1) Сначала Claude
-    let { text, raw, ok } = await askClaude(claudeKey, fullSystem, messages);
-    let usedModel = "claude";
-    let route = "c-ok"; // что именно произошло
-
-    // Берём последний пользовательский вопрос для самопроверки
+    // Берём последний пользовательский вопрос
     const lastUser = (messages || []).filter((m) => m.role === "user").slice(-1)[0];
     const userText = lastUser && typeof lastUser.content === "string" ? lastUser.content : "";
 
+    // Эвристика «именного» вопроса
     const hasNamedEntity =
       /[«"'].+?["'»]/.test(userText) ||
       /\b[A-ZА-ЯЁ][\wА-Яа-яёЁ'-]+(?:\s+[A-ZА-ЯЁ][\wА-Яа-яёЁ'-]+)+/.test(userText) ||
       /(restaurant|cafe|hotel|bar|ресторан|кафе|отель|chayhana|чайхана|osh|ош|palov|плов|somsa|сомса)/i.test(userText);
+
+    // Google Places: при именном вопросе ищем место и подкладываем как факт
+    let placesData = null;
+    const placesKey = process.env.GOOGLE_PLACES_API_KEY;
+    if (placesKey && hasNamedEntity) {
+      placesData = await findPlace(userText, placesKey);
+    }
+
+    let placesBlock = "";
+    if (placesData) {
+      const lines = [
+        "GOOGLE PLACES DATA (current, real-world — use as factual ground truth):",
+        "- Name: " + placesData.name,
+      ];
+      if (placesData.address) lines.push("- Address: " + placesData.address);
+      if (placesData.rating)
+        lines.push("- Rating: " + placesData.rating + " / 5 (" + (placesData.ratingCount || "?") + " reviews)");
+      if (placesData.priceLevel) lines.push("- Price level: " + placesData.priceLevel);
+      if (placesData.types && placesData.types.length)
+        lines.push("- Categories: " + placesData.types.slice(0, 5).join(", "));
+      if (placesData.summary) lines.push("- Summary: " + placesData.summary);
+      if (placesData.hours && placesData.hours.length)
+        lines.push("- Hours: " + placesData.hours.join("; "));
+      placesBlock = "\n\n" + lines.join("\n");
+    }
+
+    const fullSystem = (system || "") + knowledge + placesBlock;
+
+    // 1) Сначала Claude
+    let { text, raw, ok } = await askClaude(claudeKey, fullSystem, messages);
+    let usedModel = "claude";
+    let route = placesData ? "places+c" : "c-ok";
 
     let shouldFallback = false;
     if (!ok || !text) {
       shouldFallback = true; route = "c-fail";
     } else if (looksLikeDontKnow(text)) {
       shouldFallback = true; route = "c-dontknow";
-    } else if (hasNamedEntity && geminiKey) {
+    } else if (hasNamedEntity && !placesData && geminiKey) {
       const offTopic = await answerIsOffTopic(claudeKey, userText, text);
       if (offTopic) { shouldFallback = true; route = "c-offtopic"; }
       else { route = "c-specific"; }
