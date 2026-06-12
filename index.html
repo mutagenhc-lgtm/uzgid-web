@@ -38,13 +38,15 @@
     color:var(--sand);
     position:relative;overflow:hidden;
   }
-  #lang-screen .bg-tile{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+  #lang-screen .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;
+    z-index:0;opacity:0;animation:fadein 1.4s ease-out 0.2s forwards}
+  #lang-screen .photo-veil{position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,rgba(10,31,63,0.85) 0%,rgba(10,31,63,0.55) 35%,rgba(10,31,63,0.7) 70%,rgba(15,53,107,0.95) 100%)}
+  #lang-screen .bg-tile{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;opacity:0.7}
   #lang-screen .sunset{position:absolute;left:0;right:0;bottom:0;height:55%;
     background:radial-gradient(ellipse at 50% 100%,rgba(207,162,76,0.35) 0%,rgba(207,162,76,0.12) 35%,transparent 70%);
-    pointer-events:none;z-index:1}
-  #lang-screen .skyline{position:absolute;left:0;right:0;bottom:0;width:100%;height:170px;pointer-events:none;z-index:2;opacity:0.95;
-    filter:drop-shadow(0 -4px 8px rgba(0,0,0,0.3))}
-  #lang-screen .stars{position:absolute;inset:0;pointer-events:none;z-index:2}
+    pointer-events:none;z-index:2}
+  #lang-screen .stars{position:absolute;inset:0;pointer-events:none;z-index:3}
   #lang-screen .stars .s{position:absolute;width:3px;height:3px;border-radius:50%;background:#cfa24c;
     box-shadow:0 0 8px #cfa24c;animation:twinkle 3.2s infinite ease-in-out}
   #lang-screen .stars .s1{top:8%;left:18%;animation-delay:0s}
@@ -52,16 +54,21 @@
   #lang-screen .stars .s3{top:22%;left:40%;animation-delay:1.2s}
   #lang-screen .stars .s4{top:5%;left:88%;animation-delay:1.8s;width:2px;height:2px}
   #lang-screen .stars .s5{top:18%;left:8%;animation-delay:2.4s;width:2px;height:2px}
+  #lang-screen .credit{position:absolute;bottom:6px;left:0;right:0;text-align:center;
+    font-size:9.5px;color:rgba(244,236,216,0.4);z-index:4;letter-spacing:0.5px}
   @keyframes twinkle{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+  @keyframes fadein{to{opacity:1}}
+  @keyframes slidein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   #lang-screen .top{padding:54px 28px 10px;position:relative;z-index:3}
-  .brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}
-  .brand-star{width:38px;height:38px;flex-shrink:0}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:22px;opacity:0;animation:slidein 0.6s ease-out 0.3s forwards}
+  .brand-star{width:38px;height:38px;flex-shrink:0;filter:drop-shadow(0 0 12px rgba(207,162,76,0.5));animation:starpulse 3s infinite ease-in-out}
+  @keyframes starpulse{0%,100%{filter:drop-shadow(0 0 8px rgba(207,162,76,0.4))}50%{filter:drop-shadow(0 0 18px rgba(207,162,76,0.85))}}
   .brand-name{font-size:25px;font-weight:700;letter-spacing:.5px}
   .brand-name span{color:var(--gold)}
-  .lede{font-size:30px;line-height:1.25;font-weight:600;max-width:11ch}
+  .lede{font-size:30px;line-height:1.25;font-weight:600;max-width:11ch;opacity:0;animation:slidein 0.6s ease-out 0.5s forwards}
   .lede em{font-style:normal;color:var(--turq-light)}
-  .sub{margin-top:14px;font-size:15px;line-height:1.6;color:#cdd8ea;max-width:30ch}
-  .pick{margin-top:26px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+  .sub{margin-top:14px;font-size:15px;line-height:1.6;color:#cdd8ea;max-width:30ch;opacity:0;animation:slidein 0.6s ease-out 0.65s forwards}
+  .pick{margin-top:26px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);opacity:0;animation:slidein 0.6s ease-out 0.8s forwards}
   .langs{
     position:relative;z-index:3;
     padding:14px 22px 150px;
@@ -74,16 +81,31 @@
     border:1px solid rgba(207,162,76,.35);
     border-radius:14px;padding:14px 15px;
     color:var(--sand);font-size:15.5px;font-weight:500;
-    cursor:pointer;transition:.22s;
-    backdrop-filter:blur(4px);
-    -webkit-backdrop-filter:blur(4px);
+    cursor:pointer;transition:transform .25s,background .25s,border-color .25s,box-shadow .25s;
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
     position:relative;overflow:hidden;
+    opacity:0;animation:slidein 0.5s ease-out forwards;
   }
-  .lang-btn::before{content:"";position:absolute;top:0;right:-20px;width:60px;height:100%;
-    background:linear-gradient(120deg,transparent,rgba(207,162,76,0.12),transparent);
-    transform:skewX(-20deg);pointer-events:none}
-  .lang-btn:hover,.lang-btn:active{background:var(--turq);border-color:var(--gold);transform:translateY(-1px)}
-  .lang-btn .flag{font-size:22px}
+  .lang-btn:nth-child(1){animation-delay:0.6s}
+  .lang-btn:nth-child(2){animation-delay:0.7s}
+  .lang-btn:nth-child(3){animation-delay:0.8s}
+  .lang-btn:nth-child(4){animation-delay:0.9s}
+  .lang-btn:nth-child(5){animation-delay:1.0s}
+  .lang-btn:nth-child(6){animation-delay:1.1s}
+  .lang-btn:nth-child(7){animation-delay:1.2s}
+  .lang-btn:nth-child(8){animation-delay:1.3s}
+  .lang-btn:nth-child(9){animation-delay:1.4s}
+  .lang-btn::before{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;
+    background:linear-gradient(120deg,transparent,rgba(207,162,76,0.18),transparent);
+    transform:skewX(-20deg);pointer-events:none;
+    transition:left 0.7s ease}
+  .lang-btn:hover{background:var(--turq);border-color:var(--gold);transform:translateY(-2px) scale(1.02);
+    box-shadow:0 8px 20px rgba(31,143,147,0.35),0 0 0 1px rgba(207,162,76,0.5) inset}
+  .lang-btn:hover::before{left:120%}
+  .lang-btn:active{transform:translateY(0) scale(0.98)}
+  .lang-btn .flag{font-size:22px;transition:transform 0.3s}
+  .lang-btn:hover .flag{transform:scale(1.2) rotate(-5deg)}
 
   /* ---------- chat screen ---------- */
   #chat-screen{flex:1;display:none;flex-direction:column;height:100dvh}
@@ -131,6 +153,10 @@
 
   <!-- ====== LANGUAGE SCREEN ====== -->
   <section id="lang-screen">
+    <!-- ночное фото минарета Калян (Wikimedia Commons, свободная лицензия) -->
+    <img class="hero-photo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Minorai_Kalon._Tunda.jpg/600px-Minorai_Kalon._Tunda.jpg" alt="" aria-hidden="true" loading="eager">
+    <div class="photo-veil"></div>
+
     <!-- мозаичный фон-сетка с гирихом, повторяющийся узор -->
     <svg class="bg-tile" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
@@ -145,31 +171,6 @@
 
     <!-- закатное золотое свечение снизу -->
     <div class="sunset"></div>
-
-    <!-- силуэт Регистана -->
-    <svg class="skyline" viewBox="0 0 400 120" preserveAspectRatio="xMidYEnd meet" aria-hidden="true">
-      <!-- левый минарет -->
-      <path d="M30 120 L30 50 Q30 42 36 42 Q42 42 42 50 L42 120 Z" fill="#0e2548"/>
-      <circle cx="36" cy="38" r="6" fill="#cfa24c"/>
-      <path d="M36 26 L38 32 L34 32 Z" fill="#cfa24c"/>
-      <!-- левое медресе -->
-      <path d="M55 120 L55 60 L75 60 L75 40 Q90 25 105 40 L105 60 L125 60 L125 120 Z" fill="#15356b"/>
-      <path d="M75 60 L75 40 Q90 25 105 40 L105 60 Z" fill="#1f8f93"/>
-      <path d="M90 35 a8 12 0 0 1 0 24" fill="none" stroke="#cfa24c" stroke-width="1.5" opacity="0.5"/>
-      <!-- центральное медресе (большое) -->
-      <path d="M140 120 L140 65 L165 65 L165 30 Q200 5 235 30 L235 65 L260 65 L260 120 Z" fill="#15356b"/>
-      <ellipse cx="200" cy="32" rx="38" ry="32" fill="#1f8f93"/>
-      <path d="M200 4 L203 14 L197 14 Z" fill="#cfa24c"/>
-      <path d="M180 65 L180 88 Q200 78 220 88 L220 65 Z" fill="#3bb3a8" opacity="0.7"/>
-      <rect x="195" y="75" width="10" height="20" fill="#0e2548"/>
-      <!-- правое медресе -->
-      <path d="M275 120 L275 60 L295 60 L295 40 Q310 25 325 40 L325 60 L345 60 L345 120 Z" fill="#15356b"/>
-      <path d="M295 60 L295 40 Q310 25 325 40 L325 60 Z" fill="#1f8f93"/>
-      <!-- правый минарет -->
-      <path d="M358 120 L358 50 Q358 42 364 42 Q370 42 370 50 L370 120 Z" fill="#0e2548"/>
-      <circle cx="364" cy="38" r="6" fill="#cfa24c"/>
-      <path d="M364 26 L366 32 L362 32 Z" fill="#cfa24c"/>
-    </svg>
 
     <!-- мерцающие звёзды (медленная анимация) -->
     <div class="stars" aria-hidden="true">
@@ -187,6 +188,7 @@
       <div class="pick">Choose your language</div>
     </div>
     <div class="langs" id="lang-grid"></div>
+    <div class="credit">Photo: Minorai Kalon by Wikimedia Commons (CC BY-SA)</div>
   </section>
 
   <!-- ====== CHAT SCREEN ====== -->
@@ -195,7 +197,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v35</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v36</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
