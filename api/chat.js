@@ -189,9 +189,19 @@ export default async function handler(req, res) {
 
     // Google Places: при именном вопросе ищем место и подкладываем как факт
     let placesData = null;
+    let placesStatus = "";
     const placesKey = process.env.GOOGLE_PLACES_API_KEY;
-    if (placesKey && hasNamedEntity) {
-      placesData = await findPlace(userText, placesKey);
+    if (!placesKey) {
+      placesStatus = "no-key";
+    } else if (!hasNamedEntity) {
+      placesStatus = "no-named";
+    } else {
+      try {
+        placesData = await findPlace(userText, placesKey);
+        placesStatus = placesData ? "found" : "miss";
+      } catch (e) {
+        placesStatus = "error:" + (e.message || "").slice(0, 30);
+      }
     }
 
     let placesBlock = "";
@@ -217,19 +227,20 @@ export default async function handler(req, res) {
     // 1) Сначала Claude
     let { text, raw, ok } = await askClaude(claudeKey, fullSystem, messages);
     let usedModel = "claude";
-    let route = placesData ? "places+c" : "c-ok";
+    const placesPrefix = "places[" + placesStatus + "] ";
+    let route = placesPrefix + (placesData ? "places+c" : "c-ok");
 
     let shouldFallback = false;
     if (!ok || !text) {
-      shouldFallback = true; route = "c-fail";
+      shouldFallback = true; route = placesPrefix + "c-fail";
     } else if (looksLikeDontKnow(text)) {
-      shouldFallback = true; route = "c-dontknow";
+      shouldFallback = true; route = placesPrefix + "c-dontknow";
     } else if (hasNamedEntity && !placesData && geminiKey) {
       const offTopic = await answerIsOffTopic(claudeKey, userText, text);
-      if (offTopic) { shouldFallback = true; route = "c-offtopic"; }
-      else { route = "c-specific"; }
+      if (offTopic) { shouldFallback = true; route = placesPrefix + "c-offtopic"; }
+      else { route = placesPrefix + "c-specific"; }
     } else if (hasNamedEntity && !geminiKey) {
-      route = "c-no-gemini-key";
+      route = placesPrefix + "c-no-gemini-key";
     }
 
     if (geminiKey && shouldFallback) {
