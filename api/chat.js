@@ -92,7 +92,7 @@ async function askGemini(key, system, messages) {
   return { text, raw: data, ok: r.ok };
 }
 
-// Признаки, что Claude "не знает" — стоит сходить в Gemini
+// Признаки, что Claude явно "не знает" — самый простой триггер фолбэка
 const DONT_KNOW = [
   "i don't have", "i do not have", "i'm not familiar", "i am not familiar",
   "i cannot find", "i can't find", "no information", "not aware",
@@ -102,6 +102,39 @@ const DONT_KNOW = [
 function looksLikeDontKnow(text) {
   const t = text.toLowerCase();
   return DONT_KNOW.some((p) => t.includes(p));
+}
+
+// Самопроверка: спрашиваем Claude, ответил ли он на конкретный вопрос
+// пользователя, или ушёл в общую тему. Возвращает true, если промах.
+async function answerIsOffTopic(key, userMessage, answer) {
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 5,
+        system:
+          "You are a strict QA judge. The user asked about a SPECIFIC named place, dish, person, or entity in Uzbekistan. The assistant answered. Decide: did the assistant give information about that EXACT named thing, or did it go off-topic to a general explanation? Reply with a single word: SPECIFIC or GENERAL. Reply GENERAL when the assistant talked around the topic without identifying the actual named place/entity.",
+        messages: [
+          {
+            role: "user",
+            content:
+              "USER QUESTION:\n" + userMessage + "\n\nASSISTANT ANSWER:\n" + answer + "\n\nVerdict?",
+          },
+        ],
+      }),
+    });
+    const data = await r.json();
+    const v = (data.content && data.content[0] && data.content[0].text) || "";
+    return /GENERAL/i.test(v);
+  } catch (e) {
+    return false; // при ошибке самопроверки не дёргаем фолбэк
+  }
 }
 
 export default async function handler(req, res) {
@@ -124,8 +157,29 @@ export default async function handler(req, res) {
     let { text, raw, ok } = await askClaude(claudeKey, fullSystem, messages);
     let usedModel = "claude";
 
-    // 2) Фолбэк на Gemini — если ключ есть и ответ похож на «не знаю»
-    if (geminiKey && (!ok || !text || looksLikeDontKnow(text))) {
+    // Берём последний пользовательский вопрос для самопроверки
+    const lastUser = (messages || []).filter((m) => m.role === "user").slice(-1)[0];
+    const userText = lastUser && typeof lastUser.content === "string" ? lastUser.content : "";
+
+    // Эвристика: если в вопросе есть имя собственное (заглавные буквы
+    // посреди фразы или кавычки) — стоит проверить, попал ли ответ в цель
+    const hasNamedEntity =
+      /[«"'].+?["'»]/.test(userText) ||
+      /\b[A-ZА-ЯЁ][\wА-Яа-яёЁ'-]+(?:\s+[A-ZА-ЯЁ][\wА-Яа-яёЁ'-]+)+/.test(userText) ||
+      /(restaurant|cafe|hotel|bar|ресторан|кафе|отель|chayhana|чайхана|osh|ош|palov|плов|somsa|сомса)/i.test(userText);
+
+    let shouldFallback = false;
+    if (!ok || !text) {
+      shouldFallback = true;
+    } else if (looksLikeDontKnow(text)) {
+      shouldFallback = true;
+    } else if (hasNamedEntity && geminiKey) {
+      // дорогая проверка — только когда дёшево и осмысленно
+      shouldFallback = await answerIsOffTopic(claudeKey, userText, text);
+    }
+
+    // 2) Фолбэк на Gemini
+    if (geminiKey && shouldFallback) {
       const g = await askGemini(geminiKey, fullSystem, messages);
       if (g.ok && g.text && !looksLikeDontKnow(g.text)) {
         text = g.text;
