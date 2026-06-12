@@ -129,7 +129,7 @@
       <svg class="girih" style="width:130px;top:-30px;right:-20px" viewBox="0 0 100 100"><path fill="#fff" d="M50 2l12 24 27 4-19 19 4 27-24-12-24 12 4-27L17 30l27-4z"/></svg>
       <svg class="star" viewBox="0 0 100 100"><path fill="#cfa24c" d="M50 3l11.5 23.3 25.7 3.7-18.6 18.1 4.4 25.6L50 64.6 27 76.8l4.4-25.6L12.8 30l25.7-3.7z"/></svg>
       <div>
-        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v26</span></div>
+        <div class="h-name">Uz<span>Gid</span> <span style="font-size:10px;color:#7fa;opacity:.8">v27</span></div>
         <div class="h-loc">AI guide · live</div>
       </div>
       <button class="switch" onclick="resetToLang()">Language</button>
@@ -234,7 +234,7 @@ function renderChips(){
   });
 }
 
-function addBot(text,model){
+function addBot(text,model,route){
   const f=document.getElementById('feed');
   const d=document.createElement('div');
   d.className='msg bot';
@@ -243,9 +243,15 @@ function addBot(text,model){
     const isG=model==='gemini';
     const badge=document.createElement('span');
     badge.textContent=isG?'G':'C';
-    badge.title=isG?'Ответил Gemini':'Ответил Claude';
+    badge.title=route?('Маршрут: '+route):(isG?'Ответил Gemini':'Ответил Claude');
     badge.style.cssText='display:inline-block;margin-right:8px;width:20px;height:20px;line-height:20px;text-align:center;border-radius:50%;font-size:11px;font-weight:700;color:#fff;background:'+(isG?'#1f8f93':'#15356b');
     d.insertBefore(badge,d.firstChild);
+    if(route){
+      const tag=document.createElement('span');
+      tag.textContent=route;
+      tag.style.cssText='display:inline-block;margin-right:6px;font-size:9.5px;color:#888;font-family:monospace;background:#f4ecd8;padding:1px 5px;border-radius:6px;vertical-align:middle';
+      d.insertBefore(tag,d.firstChild.nextSibling);
+    }
   }
   f.appendChild(d);f.scrollTop=f.scrollHeight;
   return d;
@@ -388,6 +394,7 @@ async function onSend(){
     const data=await resp.json();
     let answer=data.content?.[0]?.text||"…";
     const model=data._model||"claude";
+    const route=data._route||"";
     history.push({role:'assistant',content:answer});
 
     let photoQ=null;
@@ -396,7 +403,7 @@ async function onSend(){
     answer=answer.replace(/\n?\s*PHOTO:\s*[^\n]*/i,'').trim();
 
     hideTyping();
-    const bubble=addBot(answer,model);
+    const bubble=addBot(answer,model,route);
     addFeedback(bubble,text,answer);
     if(photoQ){
       const status=document.createElement('div');
