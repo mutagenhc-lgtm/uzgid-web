@@ -52,7 +52,7 @@ async function askClaude(key, system, messages) {
     },
     body: JSON.stringify({
       model: "claude-sonnet-4-6",
-      max_tokens: 700,
+      max_tokens: 800,
       system: system,
       messages: messages,
     }),
@@ -177,9 +177,22 @@ export default async function handler(req, res) {
     const { system, messages } = req.body || {};
     const knowledge = await buildKnowledge();
 
-    // Берём последний пользовательский вопрос
+    // Берём последний пользовательский вопрос — может быть строкой или
+    // массивом блоков (image+text) при отправке фото
     const lastUser = (messages || []).filter((m) => m.role === "user").slice(-1)[0];
-    const userText = lastUser && typeof lastUser.content === "string" ? lastUser.content : "";
+    let userText = "";
+    if (lastUser) {
+      if (typeof lastUser.content === "string") {
+        userText = lastUser.content;
+      } else if (Array.isArray(lastUser.content)) {
+        userText = lastUser.content
+          .filter((b) => b.type === "text")
+          .map((b) => b.text || "")
+          .join(" ");
+      }
+    }
+    const hasImage = lastUser && Array.isArray(lastUser.content) &&
+      lastUser.content.some((b) => b.type === "image");
 
     // Эвристика «именного» вопроса
     const hasNamedEntity =
@@ -187,11 +200,14 @@ export default async function handler(req, res) {
       /\b[A-ZА-ЯЁ][\wА-Яа-яёЁ'-]+(?:\s+[A-ZА-ЯЁ][\wА-Яа-яёЁ'-]+)+/.test(userText) ||
       /(restaurant|cafe|hotel|bar|ресторан|кафе|отель|chayhana|чайхана|osh|ош|palov|плов|somsa|сомса)/i.test(userText);
 
-    // Google Places: при именном вопросе ищем место и подкладываем как факт
+    // Google Places: при именном вопросе ищем место и подкладываем как факт.
+    // Для фото-вопросов Places не зовём — у нас уже есть само изображение.
     let placesData = null;
     let placesStatus = "";
     const placesKey = process.env.GOOGLE_PLACES_API_KEY;
-    if (!placesKey) {
+    if (hasImage) {
+      placesStatus = "skip-image";
+    } else if (!placesKey) {
       placesStatus = "no-key";
     } else if (!hasNamedEntity) {
       placesStatus = "no-named";
@@ -250,7 +266,7 @@ export default async function handler(req, res) {
       route = placesPrefix + "c-no-gemini-key";
     }
 
-    if (geminiKey && shouldFallback) {
+    if (geminiKey && shouldFallback && !hasImage) {
       const g = await askGemini(geminiKey, fullSystem, messages);
       if (g.ok && g.text && !looksLikeDontKnow(g.text)) {
         text = g.text;
