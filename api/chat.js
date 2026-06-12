@@ -197,8 +197,15 @@ export default async function handler(req, res) {
       placesStatus = "no-named";
     } else {
       try {
-        placesData = await findPlace(userText, placesKey);
-        placesStatus = placesData ? "found:" + placesData.name.slice(0, 25) : "miss";
+        const result = await findPlace(userText, placesKey);
+        if (result && result.name) {
+          placesData = result;
+          placesStatus = "found:" + result.name.slice(0, 25);
+        } else if (result && result._diag) {
+          placesStatus = "miss:" + result._diag;
+        } else {
+          placesStatus = "miss";
+        }
       } catch (e) {
         placesStatus = "error:" + (e.message || "").slice(0, 30);
       }
