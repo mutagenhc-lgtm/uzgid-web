@@ -4,6 +4,21 @@
 
 export async function findPlace(query, key) {
   if (!key || !query) return null;
+  // Несколько попыток в разных формулировках — Google Places чувствителен к
+  // языку и формулировке. Возвращаем первое попадание.
+  const variants = [
+    query + " Uzbekistan",
+    query + " Tashkent",
+    query, // как есть
+  ];
+  for (const q of variants) {
+    const found = await searchOne(q, key);
+    if (found) return found;
+  }
+  return null;
+}
+
+async function searchOne(textQuery, key) {
   try {
     const r = await fetch(
       "https://places.googleapis.com/v1/places:searchText",
@@ -12,7 +27,6 @@ export async function findPlace(query, key) {
         headers: {
           "Content-Type": "application/json",
           "X-Goog-Api-Key": key,
-          // запрашиваем только нужные поля — экономия и скорость
           "X-Goog-FieldMask":
             "places.displayName,places.formattedAddress,places.rating," +
             "places.userRatingCount,places.priceLevel,places.types," +
@@ -20,11 +34,9 @@ export async function findPlace(query, key) {
             "places.editorialSummary,places.googleMapsUri",
         },
         body: JSON.stringify({
-          textQuery: query + " Uzbekistan",
-          languageCode: "en",
+          textQuery,
           maxResultCount: 1,
           locationBias: {
-            // Ташкент примерно в центре, радиус 500 км — вся страна
             circle: {
               center: { latitude: 41.31, longitude: 69.27 },
               radius: 500000.0,
@@ -37,9 +49,8 @@ export async function findPlace(query, key) {
     const data = await r.json();
     const place = data.places && data.places[0];
     if (!place) return null;
-
     return {
-      name: place.displayName?.text || query,
+      name: place.displayName?.text || textQuery,
       address: place.formattedAddress || "",
       rating: place.rating || null,
       ratingCount: place.userRatingCount || null,
