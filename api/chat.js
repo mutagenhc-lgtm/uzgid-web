@@ -63,7 +63,23 @@ async function askClaude(key, system, messages) {
 }
 
 // --- Gemini (фолбэк) ---
-async function askGemini(key, system, messages) {
+async function askGemini(key, system, messages, userQuestion) {
+  // Для Gemini используем облегчённый промпт: основная инструкция Claude
+  // часто слишком жёсткая для него ("если не уверен — молчи"), и Gemini
+  // отказывается отвечать даже когда что-то знает.
+  const lastUser = userQuestion || ((messages || []).filter((m) => m.role === "user").slice(-1)[0]?.content) || "";
+  const geminiSystem =
+    "You are a helpful local travel assistant for Uzbekistan. " +
+    "A tourist asked about a specific place, dish, business, or entity. " +
+    "Use any knowledge you have from Google Maps, reviews, blogs, and local sources. " +
+    "Identify the SPECIFIC named thing they asked about — not a general topic. " +
+    "Give a concrete, useful answer: what it is, where (district / landmark), " +
+    "typical price range in UZS and USD, why it's worth visiting. " +
+    "If you genuinely have no data on this specific entity, say so briefly and suggest " +
+    "1–2 well-known similar places nearby. " +
+    "Keep it 2–3 short paragraphs. Reply in the SAME LANGUAGE as the tourist's question. " +
+    "On the very last line, output: PHOTO: <main place name in English, Wikipedia-style> or PHOTO: none";
+
   // Преобразуем формат Anthropic → Gemini
   const contents = messages.map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
@@ -76,9 +92,9 @@ async function askGemini(key, system, messages) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: system }] },
+      systemInstruction: { parts: [{ text: geminiSystem }] },
       contents,
-      generationConfig: { maxOutputTokens: 700 },
+      generationConfig: { maxOutputTokens: 800, temperature: 0.4 },
     }),
   });
   const data = await r.json();
